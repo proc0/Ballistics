@@ -131,24 +131,26 @@ endif()
 # Project executable setup
 ##########################################################################################
 
-# Adding our source files
-# Define PROJECT_SOURCES as a list of all source files
-file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/source/*.cpp")
-
-# Define PROJECT_INCLUDE to be the path to the include directory of the project
-set(PROJECT_INCLUDE "${CMAKE_CURRENT_LIST_DIR}/source/")
 set(DIR_INCLUDE "include")
-
-# Declaring our executable
-add_executable(${PROJECT_NAME})
-target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES})
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDE} "${CMAKE_CURRENT_LIST_DIR}/${DIR_INCLUDE}/")
+set(FILE_CONFIG "config")
 
 # Preprocess config file macros if file exists
 set(PATH_CONFIG "${CMAKE_CURRENT_LIST_DIR}/${DIR_INCLUDE}/${FILE_CONFIG}")
 if(EXISTS "${PATH_CONFIG}.h.in")
     configure_file("${PATH_CONFIG}.h.in" "${PATH_CONFIG}.h")
 endif()
+
+# Adding our source files
+# Define PROJECT_SOURCES as a list of all source files
+file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/source/*.cpp")
+
+# Define PROJECT_INCLUDE to be the path to the include directory of the project
+set(PROJECT_INCLUDE "${CMAKE_CURRENT_LIST_DIR}/source/")
+
+# Declaring our executable
+add_executable(${PROJECT_NAME})
+target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES})
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDE} "${CMAKE_CURRENT_LIST_DIR}/${DIR_INCLUDE}/")
 
 ##########################################################################################
 # Compiler and linker flags

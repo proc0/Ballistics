@@ -1,28 +1,27 @@
 #pragma once
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 #include <raylib.h>
-#include <string>
 
 #include "config.h"
 #include "physics.hpp"
+#include "ball.hpp"
 
-#define URI_SOUND_SPLAT "splat1.wav"
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 
 class Game {
     Physics physics;
-    int count;
-    Sound splat;
-    Color ballColor = RED;
-    Vector2 ballPosition = { -100.0f, -100.0f };
+    Ball ball;
     bool isCursorHidden = false;
 
     public:
         void Load();
-        static void Loop(void *self); // Emscripten
-        void Render() const;
+        static void Loop(void *self);
+        void Render(const int result) const;
         void Run();
+        const int Update();
         void Unload();
-        void Update();
 };
