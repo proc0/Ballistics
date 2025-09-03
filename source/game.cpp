@@ -6,13 +6,19 @@ void Game::Load(){
 
     splat = LoadSound(pathSoundSplat);
     count = 0;
+
+    physics.Load();
 }
 
 void Game::Unload(){
+    physics.Unload();
+
     UnloadSound(splat);
 }
 
 void Game::Update(){
+    physics.Update();
+    
     if(IsKeyPressed(KEY_SPACE)){
         count++;
         PlaySound(splat);

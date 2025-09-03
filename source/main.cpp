@@ -19,11 +19,11 @@ int main(void){
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Example");
     InitAudioDevice();
 
-    Game NewGame;
+    Game client;
     
-    NewGame.Load();
-    NewGame.Run();
-    NewGame.Unload();
+    client.Load();
+    client.Run();
+    client.Unload();
 
     CloseAudioDevice();
     CloseWindow();

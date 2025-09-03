@@ -4,12 +4,14 @@
 #include <string>
 
 #include "config.h"
+#include "physics.hpp"
 
 #define URI_SOUND_SPLAT "splat1.wav"
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 
 class Game {
+    Physics physics;
     int count;
     Sound splat;
     Color ballColor = RED;
