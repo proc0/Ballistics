@@ -2,6 +2,16 @@
 
 void Ball::Init(btRigidBody* _collision){
     collision = _collision;
+
+    if (collision->getMotionState()) {
+        btTransform trans;
+        collision->getMotionState()->getWorldTransform(trans);
+        float x = float(trans.getOrigin().getX());
+        float y = float(trans.getOrigin().getY());
+        float z = float(trans.getOrigin().getZ());
+
+        transform = MatrixTranslate(x, y, z);
+    }
 }
 
 void Ball::Load(){
@@ -10,19 +20,13 @@ void Ball::Load(){
 
     sound = LoadSound(pathSoundSplat);
 
-    texture = LoadTexture("assets/uvgrid_1024.png");
     // Create scene objects
-    // mesh = R3D_GenMeshSphere(0.5f, 64, 64, true);
     sphere = R3D_LoadModel("assets/ball.obj");
-    // material = R3D_GetDefaultMaterial();
-
+    texture = LoadTexture("assets/uvgrid_1024.png");
     sphere.materials[0].albedo.texture = texture; 
-
-    transform = MatrixTranslate(2., 10., 0.);
 }
 
 void Ball::Render() const {
-    // DrawCircleV(position, 40, color);
     R3D_DrawModelPro(&sphere, transform);
 }
 
@@ -53,8 +57,7 @@ const Vector3 Ball::Update(){
         collision->applyForce(btVector3(10.0f, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f));
     }
 
-    if (collision->getMotionState())
-    {
+    if (collision->getMotionState()) {
         btTransform trans;
         collision->getMotionState()->getWorldTransform(trans);
         float x = float(trans.getOrigin().getX());
@@ -64,7 +67,6 @@ const Vector3 Ball::Update(){
         transform = MatrixTranslate(x, y, z);
         return (Vector3){ x, y, z };
     }
-
 }
 
 void Ball::Unload(){

@@ -16,7 +16,6 @@
 class Game {
     Physics physics;
     Ball ball;
-    btRigidBody* ballCollision;
     Camera camera;
     R3D_Mesh plane = { 0 };
     R3D_Material material = { 0 };

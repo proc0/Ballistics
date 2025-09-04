@@ -3,33 +3,25 @@
 void Game::Load() {
     
     // Setup lighting
-    light = R3D_CreateLight(R3D_LIGHT_DIR);
-    R3D_SetLightDirection(light, (Vector3){ -1, -1, -1 });
-    R3D_SetLightActive(light, true);
-    // light = R3D_CreateLight(R3D_LIGHT_SPOT);
-    // {
-    //     R3D_LightLookAt(light, (Vector3) { 0, 10, 5 }, (Vector3) { 0 });
-    //     R3D_EnableShadow(light, 4096);
-    //     R3D_SetLightActive(light, true);
-    // }
+    R3D_Light light = R3D_CreateLight(R3D_LIGHT_DIR);
+    {
+        R3D_SetLightDirection(light, (Vector3){ -1, -1, -1 });
+        R3D_EnableShadow(light, 4096);
+        R3D_SetLightActive(light, true);
+    }
 
     physics.Load();
 
     plane = R3D_GenMeshPlane(300, 300, 1, 1, true);
     material = R3D_GetDefaultMaterial();
+    material.albedo.color = (Color) { 31, 31, 31, 255 };
+    material.orm.roughness = 0.0f;
+    material.orm.metalness = 0.5f;
 
     ball.Load();
     btRigidBody* sphereCollision = physics.Init();
-    ballCollision = sphereCollision;
     ball.Init(sphereCollision);
     // Camera setup
-    // camera = {
-    //     .position = { -3, 3, 3 },
-    //     .target = { 0, 0, 0 },
-    //     .up = { 0, 1, 0 },
-    //     .fovy = 60.0f,
-    //     .projection = CAMERA_PERSPECTIVE
-    // };
     camera = (Camera3D) {
         .position = (Vector3) { 0, 12, 24 },
         .target = (Vector3) { 0, 0, 0 },
@@ -68,17 +60,11 @@ void Game::Render() const {
 
     BeginDrawing();
 
-    // ClearBackground(BLACK);
-    // DrawRectangleGradientH(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BLUE, GREEN);
     R3D_Begin(camera);
     R3D_DrawMesh(&plane, &material, MatrixIdentity());
     ball.Render();
     R3D_End();
 
-    // const char* countText = TextFormat("Count: %i", result);
-    // DrawText(countText, 50, 50, 20, WHITE);
-    // if (isCursorHidden == 1) DrawText("CURSOR HIDDEN", SCREEN_WIDTH/2-100, 60, 20, BLACK);
-    // else DrawText("CURSOR VISIBLE", SCREEN_WIDTH/2-100, 60, 20, WHITE);
     DrawFPS(10, 10);
     EndDrawing();
 }
@@ -105,22 +91,8 @@ void Game::Unload(){
 
 void Game::Update(){
     physics.Update();
-    const Vector3 result = ball.Update();
-    // UpdateCamera(&camera, CAMERA_THIRD_PERSON);
-    // if (IsKeyPressed(KEY_H)){
-    //     if (isCursorHidden == 0)
-    //     {
-    //         HideCursor();
-    //         isCursorHidden = 1;
-    //     }
-    //     else
-    //     {
-    //         ShowCursor();
-    //         isCursorHidden = 0;
-    //     }
-    // }
-
-    camera.position.x = result.x;
-    camera.position.z = result.z + 30.0f;
-    camera.target = result;
+    const Vector3 ballPosition = ball.Update();
+    camera.position.x = ballPosition.x;
+    camera.position.z = ballPosition.z + 30.0f;
+    camera.target = ballPosition;
 }
