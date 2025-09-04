@@ -12,6 +12,7 @@ class Physics {
 
     public:
         void Load();
+        btRigidBody* Init();
         void Update();
         void Unload();
 };

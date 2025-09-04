@@ -16,6 +16,7 @@
 class Game {
     Physics physics;
     Ball ball;
+    btRigidBody* ballCollision;
     Camera camera;
     R3D_Mesh plane = { 0 };
     R3D_Material material = { 0 };
@@ -24,8 +25,8 @@ class Game {
         R3D_Light light;
         void Load();
         static void Loop(void *self);
-        void Render(const int result) const;
+        void Render() const;
         void Run();
-        const int Update();
+        void Update();
         void Unload();
 };
