@@ -1,18 +1,20 @@
 #pragma once
 
-#include <raylib.h>
 #include <string>
+#include <raylib.h>
+#include <raymath.h>
+#include <r3d.h>
 
 #include "config.h"
 
 #define URI_SOUND_SPLAT "splat1.wav"
 
 class Ball {
+    R3D_Mesh mesh = { 0 };
+    R3D_Material material = { 0 };
     Sound sound;
-    Color color = RED;
-    Vector2 position = { -100.0f, -100.0f };
     int count = 0;
-
+    
     public:
         void Load();
         void Render() const;

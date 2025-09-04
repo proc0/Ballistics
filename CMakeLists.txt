@@ -9,7 +9,7 @@ project(${PROJECT_NAME} VERSION ${PROJECT_VERSION} LANGUAGES CXX)
 # Configurable options
 ##########################################################################################
 
-set(DIR_RESOURCE "resource")
+set(DIR_ASSETS "assets")
 
 # toggle libs to be used with ON and OFF
 
@@ -17,6 +17,7 @@ option(USE_RAYLIB "Use raylib" ON)
 option(USE_MINIMAL_RAYLIB_MODULES "Use minimal raylib modules" OFF)
 option(USE_NO_ASSETS "Use no assets" OFF)
 option(USE_BULLET3 "Use Bullet Physics 3D" ON)
+option(USE_R3D "Use R3D rendering library" ON)
 
 ##########################################################################################
 # MSVC runtime linking
@@ -128,6 +129,47 @@ if(USE_BULLET3)
 endif()
 
 ##########################################################################################
+# R3D Rendering Library Setup
+##########################################################################################
+
+if(USE_R3D)
+
+    set(dep assimp)
+    add_git_dependency(
+        ${dep}
+        https://github.com/assimp/assimp
+        v6.0.2
+    )
+
+    FetchContent_GetProperties(${dep})
+    if(NOT ${dep}_POPULATED)
+        
+    endif()
+
+    include_directories(RECURSE build/_deps/assimp-src/src)
+    list(APPEND LIBRARIES ${dep})
+
+    set(PYTHON_EXECUTABLE "python")
+    set(R3D_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+    set(R3D_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+    set(dep r3d)
+    add_git_dependency(
+        ${dep}
+        https://github.com/Bigfoot71/r3d
+        v0.4
+    )
+
+    FetchContent_GetProperties(${dep})
+    if(NOT ${dep}_POPULATED)
+        
+    endif()
+
+    include_directories(RECURSE build/_deps/r3d-src/src)
+    list(APPEND LIBRARIES ${dep})
+endif()
+
+##########################################################################################
 # Project executable setup
 ##########################################################################################
 
@@ -142,10 +184,10 @@ endif()
 
 # Adding our source files
 # Define PROJECT_SOURCES as a list of all source files
-file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/source/*.cpp")
+file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")
 
 # Define PROJECT_INCLUDE to be the path to the include directory of the project
-set(PROJECT_INCLUDE "${CMAKE_CURRENT_LIST_DIR}/source/")
+set(PROJECT_INCLUDE "${CMAKE_CURRENT_LIST_DIR}/src/")
 
 # Declaring our executable
 add_executable(${PROJECT_NAME})
@@ -198,8 +240,8 @@ endif()
 if(NOT USE_NO_ASSETS)
     add_custom_target(copyAssetsOver
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/${DIR_RESOURCE}
-        ${CMAKE_CURRENT_BINARY_DIR}/${DIR_RESOURCE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/${DIR_ASSETS}
+        ${CMAKE_CURRENT_BINARY_DIR}/${DIR_ASSETS}
         COMMENT "Copying resources to build directory"
     )
     add_dependencies(${PROJECT_NAME} copyAssetsOver) 
@@ -289,13 +331,13 @@ if (CMAKE_BUILD_TYPE MATCHES "Debug")
     message("-- console enabled")
     if(NOT USE_NO_ASSETS AND NOT ${PLATFORM} STREQUAL "Web")
         # Set the asset path macro to the absolute path on the dev machine
-        target_compile_definitions(${PROJECT_NAME} PUBLIC ASSETS_PATH="${CMAKE_CURRENT_SOURCE_DIR}/${DIR_RESOURCE}/")   
+        target_compile_definitions(${PROJECT_NAME} PUBLIC ASSETS_PATH="${CMAKE_CURRENT_SOURCE_DIR}/${DIR_ASSETS}/")   
     endif()
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
     if(NOT USE_NO_ASSETS AND NOT ${PLATFORM} STREQUAL "Web")
         # Set the asset path macro in release mode to a relative path that assumes the assets folder is in the same directory as the game executable
-        target_compile_definitions(${PROJECT_NAME} PUBLIC ASSETS_PATH="./${DIR_RESOURCE}/")
+        target_compile_definitions(${PROJECT_NAME} PUBLIC ASSETS_PATH="./${DIR_ASSETS}/")
     endif()
     if(WIN32)
       if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -318,8 +360,8 @@ if (${PLATFORM} STREQUAL "Web")
     set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
     if(NOT USE_NO_ASSETS)
         # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -Os -Wall -s TOTAL_MEMORY=67108864 -s FORCE_FILESYSTEM=1 --preload-file assets/ --shell-file ../src/minshell.html")
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -Os -Wall -s TOTAL_MEMORY=67108864 -s FORCE_FILESYSTEM=1 --preload-file ${DIR_RESOURCE}/ --shell-file ../vendor/minshell.html")
-        target_compile_definitions(${PROJECT_NAME} PUBLIC ASSETS_PATH="/${DIR_RESOURCE}/") # Set the asset path macro in release mode to a relative path that assumes the assets folder is in the same directory as the game executable
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -Os -Wall -s TOTAL_MEMORY=67108864 -s FORCE_FILESYSTEM=1 --preload-file ${DIR_ASSETS}/ --shell-file ../vendor/minshell.html")
+        target_compile_definitions(${PROJECT_NAME} PUBLIC ASSETS_PATH="/${DIR_ASSETS}/") # Set the asset path macro in release mode to a relative path that assumes the assets folder is in the same directory as the game executable
     else()
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -Os -Wall -s TOTAL_MEMORY=67108864 -s FORCE_FILESYSTEM=1 --shell-file ../vendor/minshell.html")
     endif()

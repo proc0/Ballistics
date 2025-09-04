@@ -1,5 +1,5 @@
 #pragma once
 
 #define VERSION "0.0.1"
-#define DIR_RESOURCE "resource"
+#define DIR_RESOURCE ""
 #define PROJECT_NAME "Ballistics"

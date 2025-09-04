@@ -4,6 +4,7 @@
 #include <emscripten.h>
 #endif
 #include <raylib.h>
+#include <r3d.h>
 
 #include "config.h"
 #include "physics.hpp"
@@ -15,9 +16,12 @@
 class Game {
     Physics physics;
     Ball ball;
-    bool isCursorHidden = false;
+    Camera camera;
+    R3D_Mesh plane = { 0 };
+    R3D_Material material = { 0 };
 
     public:
+        R3D_Light light;
         void Load();
         static void Loop(void *self);
         void Render(const int result) const;
