@@ -15,7 +15,7 @@ void Ball::Init(btRigidBody* _collision){
 }
 
 void Ball::Load(){
-    std::string pathResource = DIR_RESOURCE;
+    std::string pathResource = DIR_ASSETS;
     const char* pathSoundSplat = pathResource.append("/").append(URI_SOUND_SPLAT).c_str();
 
     sound = LoadSound(pathSoundSplat);

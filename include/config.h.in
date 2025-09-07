@@ -1,5 +1,5 @@
 #pragma once
 
 #define VERSION "@PROJECT_VERSION@"
-#define DIR_RESOURCE "@DIR_RESOURCE@"
+#define DIR_ASSETS "@DIR_ASSETS@"
 #define PROJECT_NAME "@PROJECT_NAME@"

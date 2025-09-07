@@ -73,9 +73,7 @@ void Game::Run() {
     // no target FPS for web (performance)
     #ifdef __EMSCRIPTEN__
         emscripten_set_main_loop_arg(Loop, this, 0, 1);
-        SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
     #else
-        SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE);
         SetTargetFPS(60);
         while (!WindowShouldClose()) {
             Loop(this);
