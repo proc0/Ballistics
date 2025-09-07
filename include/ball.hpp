@@ -1,21 +1,30 @@
 #pragma once
 
-#include <raylib.h>
 #include <string>
+#include <raylib.h>
+#include <raymath.h>
+#include <btBulletDynamicsCommon.h>
+#include <r3d.h>
 
 #include "config.h"
 
 #define URI_SOUND_SPLAT "splat1.wav"
 
 class Ball {
+    // R3D_Mesh mesh = { 0 };
+    R3D_Model sphere = { 0 };
+    // R3D_Material material = { 0 };
+    Texture2D texture;
     Sound sound;
-    Color color = RED;
-    Vector2 position = { -100.0f, -100.0f };
+    btRigidBody* collision;
+    Matrix rotation = { 0 };
+    Matrix transform = { 0 };
     int count = 0;
-
+    
     public:
         void Load();
+        void Init(btRigidBody* collision);
         void Render() const;
-        const int Update();
+        const Vector3 Update();
         void Unload();
 };
