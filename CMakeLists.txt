@@ -134,6 +134,10 @@ endif()
 
 if(USE_R3D)
 
+    if(${PLATFORM} STREQUAL "Web")
+        set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE)
+    endif()
+    
     set(dep assimp)
     add_git_dependency(
         ${dep}

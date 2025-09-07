@@ -24,7 +24,7 @@ if "%PLATFORM_WEB%"=="true" (
         mkdir build-web
         emcmake cmake -S . -B %DIR_BUILD_WEB%
     )
-    cmake %DIR_BUILD_WEB% -DCMAKE_BUILD_TYPE=%BUILD_TYPE%
+    cmake %DIR_BUILD_WEB% -DCMAKE_BUILD_TYPE=%BUILD_TYPE% -DPLATFORM=Web
     cmake --build %DIR_BUILD_WEB% --verbose 
     @REM cmake --install %DIR_BUILD_WEB%
 ) else (
@@ -33,7 +33,7 @@ if "%PLATFORM_WEB%"=="true" (
         cmake -S . -B %DIR_BUILD% -G "MinGW Makefiles"
     )
     
-    cmake %DIR_BUILD% -DCMAKE_BUILD_TYPE=%BUILD_TYPE%
+    cmake %DIR_BUILD% -DCMAKE_BUILD_TYPE=%BUILD_TYPE% -DPLATFORM=Desktop
     cmake --build %DIR_BUILD%
     @REM cmake --install %DIR_BUILD%
 )

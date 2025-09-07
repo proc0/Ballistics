@@ -20,7 +20,7 @@ if [ "$PLATFORM_WEB" = true ]; then
     emcmake cmake -S . -B $DIR_BUILD_WEB
   fi
 
-  cmake $DIR_BUILD_WEB -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+  cmake $DIR_BUILD_WEB -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPLATFORM=Web
   cmake --build $DIR_BUILD_WEB
   # cmake --install $DIR_BUILD_WEB
 else
@@ -30,7 +30,7 @@ else
     cmake -S . -B $DIR_BUILD -G "Unix Makefiles"
   fi
 
-  cmake $DIR_BUILD -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+  cmake $DIR_BUILD -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPLATFORM=Desktop
   cmake --build $DIR_BUILD
   # cmake --install $DIR_BUILD
 fi
