@@ -35,26 +35,27 @@ void Ball::Render() const {
 }
 
 const Vector3 Ball::Update(bool isGrounded){
+    if(isGrounded){
+        isJumping = false;
+    }
     
     if(IsKeyPressed(KEY_SPACE)){
         PlaySound(sound);
         if(!isJumping){
             collision->applyForce(btVector3(0, 150, 0), btVector3(0, 0, 0));
             isJumping = true;
-        } else if(isGrounded){
-            isJumping = false;
         }
     }
 
     if (IsKeyDown(KEY_W)) {
-        if(collision->getLinearVelocity().getZ() < BALL_MAX_SPEED){
+        if(fabsf(collision->getLinearVelocity().getZ()) < BALL_MAX_SPEED){
             collision->applyForce(btVector3(0, 0, -BALL_ACCELERATION), btVector3(0.0f, 0.0f, 0.0f));
         }
     }
 
     if (IsKeyDown(KEY_S)) {
-        if(collision->getLinearVelocity().getZ() > 0.0f){
-            collision->applyForce(btVector3(0.0f, 0.0f, BALL_BREAK_FORCE), btVector3(0.0f, 0.0f, 0.0f));
+        if(collision->getLinearVelocity().getZ() < BALL_MAX_SPEED){
+            collision->applyForce(btVector3(0.0f, 0.0f, BALL_ACCELERATION), btVector3(0.0f, 0.0f, 0.0f));
         }
     }
 
@@ -65,7 +66,7 @@ const Vector3 Ball::Update(bool isGrounded){
     }
 
     if (IsKeyDown(KEY_D)) {
-        if(fabsf(collision->getLinearVelocity().getX()) < BALL_MAX_SPEED){
+        if(collision->getLinearVelocity().getX() < BALL_MAX_SPEED){
             collision->applyForce(btVector3(BALL_ACCELERATION, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f));
         }
     }
