@@ -19,7 +19,8 @@ class Game {
     Camera camera;
     R3D_Mesh plane = { 0 };
     R3D_Material material = { 0 };
-
+    R3D_Skybox skybox;
+    
     public:
         R3D_Light light;
         void Load();

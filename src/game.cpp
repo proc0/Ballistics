@@ -1,7 +1,10 @@
 #include "game.hpp"
 
 void Game::Load() {
-    
+
+    skybox = R3D_LoadSkybox("assets/skybox3.png", CUBEMAP_LAYOUT_AUTO_DETECT);
+
+    R3D_SetSceneBounds((BoundingBox) { { -10, -10, -10 }, { 10, 10, 10 } });
     // Setup lighting
     R3D_Light light = R3D_CreateLight(R3D_LIGHT_DIR);
     {
@@ -10,14 +13,15 @@ void Game::Load() {
         R3D_SetLightActive(light, true);
     }
 
-    physics.Load();
-
+    R3D_EnableSkybox(skybox);
+    
     plane = R3D_GenMeshPlane(300, 300, 1, 1, true);
     material = R3D_GetDefaultMaterial();
     material.albedo.color = (Color) { 31, 31, 31, 255 };
     material.orm.roughness = 0.0f;
     material.orm.metalness = 0.5f;
-
+    
+    physics.Load();
     ball.Load();
     btRigidBody* sphereCollision = physics.Init();
     ball.Init(sphereCollision);
@@ -82,9 +86,10 @@ void Game::Run() {
 }
 
 void Game::Unload(){
-    R3D_UnloadMesh(&plane);
     ball.Unload();
     physics.Unload();
+    R3D_UnloadMesh(&plane);
+    R3D_UnloadSkybox(skybox);
 }
 
 void Game::Update(){
