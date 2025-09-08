@@ -1,5 +1,9 @@
 #include "ball.hpp"
 
+#define BALL_MAX_SPEED 50.0f
+#define BALL_ACCELERATION 10.0f
+#define BALL_BREAK_FORCE 20.0f
+
 void Ball::Init(btRigidBody* _collision){
     collision = _collision;
 
@@ -30,31 +34,40 @@ void Ball::Render() const {
     R3D_DrawModelPro(&sphere, transform);
 }
 
-const Vector3 Ball::Update(){
+const Vector3 Ball::Update(bool isGrounded){
     
     if(IsKeyPressed(KEY_SPACE)){
-        count++;
         PlaySound(sound);
+        if(!isJumping){
+            collision->applyForce(btVector3(0, 150, 0), btVector3(0, 0, 0));
+            isJumping = true;
+        } else if(isGrounded){
+            isJumping = false;
+        }
     }
 
     if (IsKeyDown(KEY_W)) {
-        if(collision->getLinearVelocity().getZ() < 100.0f){
-            collision->applyForce(btVector3(0, 0, -10.0f), btVector3(0, 1.0f, 0));
+        if(collision->getLinearVelocity().getZ() < BALL_MAX_SPEED){
+            collision->applyForce(btVector3(0, 0, -BALL_ACCELERATION), btVector3(0.0f, 0.0f, 0.0f));
         }
     }
 
     if (IsKeyDown(KEY_S)) {
-        if(collision->getLinearVelocity() > btVector3(0.0f, 0.0f, 0.0f)){
-            collision->applyForce(btVector3(0.0f, 0.0f, 10.0f), btVector3(0.0f, 0.0f, 0.0f));
+        if(collision->getLinearVelocity().getZ() > 0.0f){
+            collision->applyForce(btVector3(0.0f, 0.0f, BALL_BREAK_FORCE), btVector3(0.0f, 0.0f, 0.0f));
         }
     }
 
     if (IsKeyDown(KEY_A)) {
-        collision->applyForce(btVector3(-10.0f, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f));
+        if(fabsf(collision->getLinearVelocity().getX()) < BALL_MAX_SPEED){
+            collision->applyForce(btVector3(-BALL_ACCELERATION, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f));
+        }
     }
 
     if (IsKeyDown(KEY_D)) {
-        collision->applyForce(btVector3(10.0f, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f));
+        if(fabsf(collision->getLinearVelocity().getX()) < BALL_MAX_SPEED){
+            collision->applyForce(btVector3(BALL_ACCELERATION, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f));
+        }
     }
 
     if (collision->getMotionState()) {
@@ -64,8 +77,18 @@ const Vector3 Ball::Update(){
         float y = float(trans.getOrigin().getY());
         float z = float(trans.getOrigin().getZ());
 
-        transform = MatrixTranslate(x, y, z);
-        return (Vector3){ x, y, z };
+        btQuaternion quatRot = trans.getRotation();
+        // transform = MatrixTranslate(x, y, z);
+        Quaternion quatRot2 = (Quaternion){
+            x: quatRot.getX(),
+            y: quatRot.getY(),
+            z: quatRot.getZ(),
+            w: quatRot.getW(),
+        };
+        // auto quatTrans = QuaternionFromMatrix(MatrixTranslate(x, y, z));
+        // transform = QuaternionToMatrix(QuaternionMultiply(quatTrans, quatRot2));
+        transform = MatrixMultiply(QuaternionToMatrix(quatRot2), MatrixTranslate(x, y, z));
+        return (Vector3){ x: transform.m12, y: transform.m13, z: transform.m14 };
     }
 }
 

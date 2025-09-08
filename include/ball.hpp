@@ -19,12 +19,12 @@ class Ball {
     btRigidBody* collision;
     Matrix rotation = { 0 };
     Matrix transform = { 0 };
-    int count = 0;
     
     public:
+        bool isJumping = false;
         void Load();
         void Init(btRigidBody* collision);
         void Render() const;
-        const Vector3 Update();
+        const Vector3 Update(bool isGrounded);
         void Unload();
 };

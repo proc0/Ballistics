@@ -15,5 +15,6 @@ class Physics {
         btRigidBody* Init();
         void Update();
         void Unload();
+        bool IsGrounded();
 };
 

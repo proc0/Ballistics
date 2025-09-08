@@ -76,6 +76,34 @@ btRigidBody* Physics::Init() {
 	return sphere;
 }
 
+bool Physics::IsGrounded(){
+	bool result = false;
+    int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
+    for (int i=0;i<numManifolds;i++)
+    {
+        btPersistentManifold* contactManifold =  dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+        // btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
+        // btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
+
+        int numContacts = contactManifold->getNumContacts();
+        for (int j=0;j<numContacts;j++)
+        {
+            btManifoldPoint& pt = contactManifold->getContactPoint(j);
+            if (pt.getDistance()<0.f)
+            {
+                // const btVector3& ptA = pt.getPositionWorldOnA();
+                // const btVector3& ptB = pt.getPositionWorldOnB();
+                // const btVector3& normalOnB = pt.m_normalWorldOnB;
+				result = true;
+				break;
+            }
+        }
+
+		if(result) break;
+    }
+	return result;
+}
+
 void Physics::Update(){
 	dynamicsWorld->stepSimulation(1.f / 60.f, 10);
 	// btRigidBody* ball;

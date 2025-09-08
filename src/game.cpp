@@ -89,7 +89,7 @@ void Game::Unload(){
 
 void Game::Update(){
     physics.Update();
-    const Vector3 ballPosition = ball.Update();
+    const Vector3 ballPosition = ball.Update(ball.isJumping ? physics.IsGrounded() : false);
     camera.position.x = ballPosition.x;
     camera.position.z = ballPosition.z + 30.0f;
     camera.target = ballPosition;
