@@ -4,8 +4,8 @@
 #define BALL_ACCELERATION 10.0f
 #define BALL_BREAK_FORCE 20.0f
 
-void Ball::Init(btRigidBody* _collision){
-    collision = _collision;
+void Ball::Init(Physics& bullet){
+    collision = bullet.CreateSphere();
 
     if (collision->getMotionState()) {
         btTransform trans;

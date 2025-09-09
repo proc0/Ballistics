@@ -4,7 +4,7 @@ void Game::Load() {
 
     skybox = R3D_LoadSkybox("assets/skybox3.png", CUBEMAP_LAYOUT_AUTO_DETECT);
 
-    R3D_SetSceneBounds((BoundingBox) { { -10, -10, -10 }, { 10, 10, 10 } });
+    R3D_SetSceneBounds((BoundingBox) { { -80, -80, -80 }, { 80, 80, 80 } });
     // Setup lighting
     R3D_Light light = R3D_CreateLight(R3D_LIGHT_DIR);
     {
@@ -18,13 +18,16 @@ void Game::Load() {
     plane = R3D_GenMeshPlane(300, 300, 1, 1, true);
     material = R3D_GetDefaultMaterial();
     material.albedo.color = (Color) { 31, 31, 31, 255 };
-    material.orm.roughness = 0.0f;
-    material.orm.metalness = 0.5f;
+    material.orm.roughness = 0.5f;
+    material.orm.metalness = 0.0f;
     
     physics.Load();
     ball.Load();
-    btRigidBody* sphereCollision = physics.Init();
-    ball.Init(sphereCollision);
+    block.Load();
+
+    physics.Init();
+    ball.Init(physics);
+    block.Init(physics);
     // Camera setup
     camera = (Camera3D) {
         .position = (Vector3) { 0, 12, 24 },
@@ -67,6 +70,7 @@ void Game::Render() const {
     R3D_Begin(camera);
     R3D_DrawMesh(&plane, &material, MatrixIdentity());
     ball.Render();
+    block.Render();
     R3D_End();
 
     DrawFPS(10, 10);
@@ -86,6 +90,7 @@ void Game::Run() {
 }
 
 void Game::Unload(){
+    block.Unload();
     ball.Unload();
     physics.Unload();
     R3D_UnloadMesh(&plane);
@@ -94,6 +99,7 @@ void Game::Unload(){
 
 void Game::Update(){
     physics.Update();
+    block.Update();
     const Vector3 ballPosition = ball.Update(ball.isJumping ? physics.IsGrounded() : false);
     camera.position.x = ballPosition.x;
     camera.position.z = ballPosition.z + 30.0f;

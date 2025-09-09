@@ -18,7 +18,7 @@ void Physics::Load() {
 	dynamicsWorld->setGravity(btVector3(0, -10, 0));
 }
 
-btRigidBody* Physics::Init() {
+void Physics::Init() {
 	
 	//the ground is a cube of side 100 at position y = -56.
 	//the sphere will hit it at y = -6, with center at -5
@@ -43,37 +43,64 @@ btRigidBody* Physics::Init() {
 		//add the body to the dynamics world
 		dynamicsWorld->addRigidBody(body);
 	}
+}
 
-	btRigidBody* sphere;
-	{
-		//create a dynamic rigidbody
+btRigidBody* Physics::CreateBlock(int x, int y, int z) {
 
-		//btCollisionShape* colShape = new btBoxShape(btVector3(1,1,1));
-		btCollisionShape* colShape = new btSphereShape(btScalar(1.));
-		collisionShapes.push_back(colShape);
-        
-		/// Create Dynamic Objects
-		btTransform startTransform;
-		startTransform.setIdentity();
+	//create a dynamic rigidbody
 
-		btScalar mass(0.5f);
+	//btCollisionShape* colShape = new btBoxShape(btVector3(1,1,1));
+	btCollisionShape* colShape = new btBoxShape(btVector3(btScalar(1.), btScalar(1.), btScalar(1.)));
+	collisionShapes.push_back(colShape);
+	
+	/// Create Dynamic Objects
+	btTransform startTransform;
+	startTransform.setIdentity();
 
-		btVector3 localInertia(0, 0, 0);
-		colShape->calculateLocalInertia(mass, localInertia);
-		startTransform.setOrigin(btVector3(2, 10, 0));
+	btScalar mass(0.5f);
 
-		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-		btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
-		btRigidBody* body = new btRigidBody(rbInfo);
-        
-        body->setFriction(1000);
-		dynamicsWorld->addRigidBody(body);
+	btVector3 localInertia(0, 0, 0);
+	colShape->calculateLocalInertia(mass, localInertia);
+	startTransform.setOrigin(btVector3(x, y, z));
 
-		sphere = body;
-	}
+	//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
+	btRigidBody* body = new btRigidBody(rbInfo);
+	
+	body->setFriction(1000);
+	dynamicsWorld->addRigidBody(body);
 
-	return sphere;
+	return body;
+}
+
+btRigidBody* Physics::CreateSphere() {
+
+	//create a dynamic rigidbody
+
+	//btCollisionShape* colShape = new btBoxShape(btVector3(1,1,1));
+	btCollisionShape* colShape = new btSphereShape(btScalar(1.));
+	collisionShapes.push_back(colShape);
+	
+	/// Create Dynamic Objects
+	btTransform startTransform;
+	startTransform.setIdentity();
+
+	btScalar mass(0.5f);
+
+	btVector3 localInertia(0, 0, 0);
+	colShape->calculateLocalInertia(mass, localInertia);
+	startTransform.setOrigin(btVector3(2, 10, 0));
+
+	//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
+	btRigidBody* body = new btRigidBody(rbInfo);
+	
+	body->setFriction(1000);
+	dynamicsWorld->addRigidBody(body);
+
+	return body;
 }
 
 bool Physics::IsGrounded(){
@@ -120,23 +147,6 @@ void Physics::Update(){
 	// 	{
 	// 		trans = obj->getWorldTransform();
 	// 	}
-
-	// 	// if(j == 1){
-	// 	// 	// ball = body;
-	// 	// 	spherePosition.x = float(trans.getOrigin().getX());
-	// 	// 	spherePosition.y = float(trans.getOrigin().getY());
-	// 	// 	spherePosition.z = float(trans.getOrigin().getZ());
-
-	// 	// 	rotationAxis.x += float(trans.getRotation().getAxis().getX());
-	// 	// 	rotationAxis.y += float(trans.getRotation().getAxis().getY());
-	// 	// 	rotationAxis.z += float(trans.getRotation().getAxis().getZ());
-
-	// 	// 	rotationAngle.x += float(ball->getAngularVelocity().getX());
-	// 	// 	rotationAngle.y += float(ball->getAngularVelocity().getY());
-	// 	// 	rotationAngle.z += float(ball->getAngularVelocity().getZ());
-	// 	// }
-
-	// }
 }
 
 void Physics::Unload() {

@@ -9,6 +9,7 @@
 #include "config.h"
 #include "physics.hpp"
 #include "ball.hpp"
+#include "block.hpp"
 
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
@@ -16,6 +17,7 @@
 class Game {
     Physics physics;
     Ball ball;
+    Block block;
     Camera camera;
     R3D_Mesh plane = { 0 };
     R3D_Material material = { 0 };

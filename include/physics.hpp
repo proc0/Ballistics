@@ -12,7 +12,9 @@ class Physics {
 
     public:
         void Load();
-        btRigidBody* Init();
+        btRigidBody* CreateBlock(int x, int y, int z);
+        btRigidBody* CreateSphere();
+        void Init();
         void Update();
         void Unload();
         bool IsGrounded();
