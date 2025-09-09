@@ -11,14 +11,15 @@
 
 class Block {
     // R3D_Mesh mesh = { 0 };
-    R3D_Model cube = { 0 };
     // R3D_Material material = { 0 };
     Texture2D texture;
-    // std::vector<btRigidBody*> collisions;
-    // std::vector<Matrix> transforms;
-    btRigidBody* collision;
+    btAlignedObjectArray<btRigidBody*> collisions;
+    btAlignedObjectArray<Matrix> transforms;
+    btAlignedObjectArray<R3D_Model> cubes;
+    // R3D_Model cube = { 0 };
+    // btRigidBody* collision;
     // Matrix rotation = { 0 };
-    Matrix transform = { 0 };
+    // Matrix transform = { 0 };
     
     public:
         void Load();
