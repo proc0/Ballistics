@@ -1,21 +1,16 @@
 #include "block.hpp"
 
 void Block::Init(Physics& bullet){
-    // collision = bullet.CreateBlock(2, 4, -10);
 
-    for(int k = 4; k > 0; k--){
-        for(int j = 0; j < k; j++){
-            collisions.push_back(bullet.CreateBlock(k + 4, j + 4, -10));
-        }
-        if(k < 3){
-            for(int l = 0; l < k; l++){
-                collisions.push_back(bullet.CreateBlock(k + 4 - l, l + 4, -10));
-            }
-        }
-    }
-    // collisions.push_back(bullet.CreateBlock(2, 4, -10));
-    // collisions.push_back(bullet.CreateBlock(0, 4, -10));
-    // collisions.push_back(bullet.CreateBlock(-2, 4, -10));
+    collisions.push_back(bullet.CreateBlock(-4, 4, -10));
+    collisions.push_back(bullet.CreateBlock(-2, 4, -10));
+    collisions.push_back(bullet.CreateBlock(0, 4, -10));
+    collisions.push_back(bullet.CreateBlock(2, 4, -10));
+    collisions.push_back(bullet.CreateBlock(4, 4, -10));
+    collisions.push_back(bullet.CreateBlock(-2, 6, -10));
+    collisions.push_back(bullet.CreateBlock(0, 6, -10));
+    collisions.push_back(bullet.CreateBlock(2, 6, -10));
+    collisions.push_back(bullet.CreateBlock(0, 8, -10));
 
     texture = LoadTexture("assets/uvgrid_1024.png");
     for (int i = 0; i < collisions.size(); i++) {

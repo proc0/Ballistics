@@ -57,7 +57,7 @@ btRigidBody* Physics::CreateBlock(int x, int y, int z) {
 	btTransform startTransform;
 	startTransform.setIdentity();
 
-	btScalar mass(0.5f);
+	btScalar mass(0.3f);
 
 	btVector3 localInertia(0, 0, 0);
 	colShape->calculateLocalInertia(mass, localInertia);
@@ -86,7 +86,7 @@ btRigidBody* Physics::CreateSphere() {
 	btTransform startTransform;
 	startTransform.setIdentity();
 
-	btScalar mass(0.5f);
+	btScalar mass(0.8f);
 
 	btVector3 localInertia(0, 0, 0);
 	colShape->calculateLocalInertia(mass, localInertia);
