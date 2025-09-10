@@ -22,7 +22,6 @@ class Ball {
     Matrix transform = { 0 };
     
     public:
-        bool isJumping = false;
         void Load();
         void Init(Physics& bullet);
         void Render() const;

@@ -41,7 +41,7 @@ void Physics::Init() {
 		btRigidBody* body = new btRigidBody(rbInfo);
 
 		//add the body to the dynamics world
-		dynamicsWorld->addRigidBody(body);
+		dynamicsWorld->addRigidBody(body, 1, 1);
 	}
 }
 
@@ -98,38 +98,55 @@ btRigidBody* Physics::CreateSphere() {
 	btRigidBody* body = new btRigidBody(rbInfo);
 	
 	body->setFriction(1000);
-	dynamicsWorld->addRigidBody(body);
+	dynamicsWorld->addRigidBody(body, 1, 1);
+	// void* callback = [this](btDynamicsWorld *world, btScalar timeStep){ this->onTickGroundSphere(world, timeStep); };
+	// dynamicsWorld->setInternalTickCallback([this](btDynamicsWorld *world, btScalar timeStep){ this->onTickGroundSphere(world, timeStep); });
+	dynamicsWorld->setInternalTickCallback(onTickGroundSphere, this);
 
 	return body;
 }
 
-bool Physics::IsGrounded(){
-	bool result = false;
-    int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
-    for (int i=0;i<numManifolds;i++)
-    {
-        btPersistentManifold* contactManifold =  dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
-        // btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
-        // btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
-
-        int numContacts = contactManifold->getNumContacts();
-        for (int j=0;j<numContacts;j++)
-        {
-            btManifoldPoint& pt = contactManifold->getContactPoint(j);
-            if (pt.getDistance()<0.f)
-            {
-                // const btVector3& ptA = pt.getPositionWorldOnA();
-                // const btVector3& ptB = pt.getPositionWorldOnB();
-                // const btVector3& normalOnB = pt.m_normalWorldOnB;
-				result = true;
-				break;
-            }
-        }
-
-		if(result) break;
-    }
-	return result;
+void Physics::onTickGroundSphere(btDynamicsWorld *world, btScalar timeStep) {
+    int numManifolds = world->getDispatcher()->getNumManifolds();
+	Physics* info = static_cast<Physics*>(world->getWorldUserInfo());
+    // printf("numManifolds = %d\n",numManifolds);
+	if(numManifolds == 1){
+		printf("Grounded");
+		info->isGrounded = true;
+	}
 }
+
+bool Physics::IsGrounded(){
+	return isGrounded;
+}
+
+// bool Physics::IsGrounded(){
+// 	bool result = false;
+//     int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
+//     for (int i=0;i<numManifolds;i++)
+//     {
+//         btPersistentManifold* contactManifold =  dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+//         // btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
+//         // btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
+
+//         int numContacts = contactManifold->getNumContacts();
+//         for (int j=0;j<numContacts;j++)
+//         {
+//             btManifoldPoint& pt = contactManifold->getContactPoint(j);
+//             if (pt.getDistance()<0.f)
+//             {
+//                 // const btVector3& ptA = pt.getPositionWorldOnA();
+//                 // const btVector3& ptB = pt.getPositionWorldOnB();
+//                 // const btVector3& normalOnB = pt.m_normalWorldOnB;
+// 				result = true;
+// 				break;
+//             }
+//         }
+
+// 		if(result) break;
+//     }
+// 	return result;
+// }
 
 void Physics::Update(){
 	dynamicsWorld->stepSimulation(1.f / 60.f, 10);

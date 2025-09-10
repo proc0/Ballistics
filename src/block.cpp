@@ -2,24 +2,18 @@
 
 void Block::Init(Physics& bullet){
 
-    collisions.push_back(bullet.CreateBlock(-4, 4, -10));
-    collisions.push_back(bullet.CreateBlock(-2, 4, -10));
-    collisions.push_back(bullet.CreateBlock(0, 4, -10));
-    collisions.push_back(bullet.CreateBlock(2, 4, -10));
-    collisions.push_back(bullet.CreateBlock(4, 4, -10));
-    collisions.push_back(bullet.CreateBlock(-2, 6, -10));
-    collisions.push_back(bullet.CreateBlock(0, 6, -10));
-    collisions.push_back(bullet.CreateBlock(2, 6, -10));
-    collisions.push_back(bullet.CreateBlock(0, 8, -10));
+    Pyramid(2, 4, 10, 10, -10, bullet);
 
     texture = LoadTexture("assets/uvgrid_1024.png");
+    
     for (int i = 0; i < collisions.size(); i++) {
         if (collisions[i]->getMotionState()) {
-            btTransform trans;
-            collisions[i]->getMotionState()->getWorldTransform(trans);
-            float x = float(trans.getOrigin().getX());
-            float y = float(trans.getOrigin().getY());
-            float z = float(trans.getOrigin().getZ());
+            btTransform transform;
+
+            collisions[i]->getMotionState()->getWorldTransform(transform);
+            float x = float(transform.getOrigin().getX());
+            float y = float(transform.getOrigin().getY());
+            float z = float(transform.getOrigin().getZ());
     
             transforms.push_back(MatrixTranslate(x, y, z));
         }
@@ -42,62 +36,43 @@ void Block::Render() const {
     for (int i = 0; i < transforms.size(); i++) {
         R3D_DrawModelPro(&cubes[i], transforms[i]);
     }
-    // R3D_DrawModelPro(&cube, transform);
 }
 
 void Block::Update(){
 
-    // if (collision->getMotionState()) {
-    //     btTransform trans;
-    //     collision->getMotionState()->getWorldTransform(trans);
-    //     float x = float(trans.getOrigin().getX());
-    //     float y = float(trans.getOrigin().getY());
-    //     float z = float(trans.getOrigin().getZ());
-
-    //     btQuaternion quatRot = trans.getRotation();
-    //     // transform = MatrixTranslate(x, y, z);
-    //     Quaternion quatRot2 = (Quaternion){
-    //         x: quatRot.getX(),
-    //         y: quatRot.getY(),
-    //         z: quatRot.getZ(),
-    //         w: quatRot.getW(),
-    //     };
-    //     // auto quatTrans = QuaternionFromMatrix(MatrixTranslate(x, y, z));
-    //     // transform = QuaternionToMatrix(QuaternionMultiply(quatTrans, quatRot2));
-    //     transform = MatrixMultiply(QuaternionToMatrix(quatRot2), MatrixTranslate(x, y, z));
-    // }
-
     for (int i = 0; i < collisions.size(); i++) {
         if (collisions[i]->getMotionState()) {
-            btTransform trans;
-            collisions[i]->getMotionState()->getWorldTransform(trans);
-            float x = float(trans.getOrigin().getX());
-            float y = float(trans.getOrigin().getY());
-            float z = float(trans.getOrigin().getZ());
+            btTransform transform;
 
-            btQuaternion quatRot = trans.getRotation();
-            // transform = MatrixTranslate(x, y, z);
-            Quaternion quatRot2 = (Quaternion){
-                x: quatRot.getX(),
-                y: quatRot.getY(),
-                z: quatRot.getZ(),
-                w: quatRot.getW(),
+            collisions[i]->getMotionState()->getWorldTransform(transform);
+            float x = float(transform.getOrigin().getX());
+            float y = float(transform.getOrigin().getY());
+            float z = float(transform.getOrigin().getZ());
+
+            btQuaternion btRotation = transform.getRotation();
+            Quaternion rotation = (Quaternion){
+                x: btRotation.getX(),
+                y: btRotation.getY(),
+                z: btRotation.getZ(),
+                w: btRotation.getW(),
             };
-            // auto quatTrans = QuaternionFromMatrix(MatrixTranslate(x, y, z));
-            // transform = QuaternionToMatrix(QuaternionMultiply(quatTrans, quatRot2));
-            Matrix transform = MatrixMultiply(QuaternionToMatrix(quatRot2), MatrixTranslate(x, y, z));
-            transforms[i] = transform;
+
+            transforms[i] = MatrixMultiply(QuaternionToMatrix(rotation), MatrixTranslate(x, y, z));
+        }
+    }
+}
+
+void Block::Pyramid(int blockWidth, int pyramidHeight, int xOffset, int yOffset, int zOffset, Physics& bullet) {
+    for(int y = pyramidHeight; y > 0; y--){
+        for(int x = y*2 - 1; x > 0; x--){
+            collisions.push_back(bullet.CreateBlock(x*blockWidth - y*blockWidth + xOffset, (pyramidHeight + 1 - y)*2 + 2 + yOffset, zOffset));
         }
     }
 }
 
 void Block::Unload(){
-    // for (int i = 0; i < collisions.size(); i++) {
-    //     delete collisions[i];
-    // }
     for (int i = 0; i < cubes.size(); i++) {
         R3D_UnloadModel(&cubes[i], true);
     }
-    // R3D_UnloadModel(&cube, true);
     UnloadTexture(texture);
 }

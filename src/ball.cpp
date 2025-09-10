@@ -35,15 +35,11 @@ void Ball::Render() const {
 }
 
 const Vector3 Ball::Update(bool isGrounded){
-    if(isGrounded){
-        isJumping = false;
-    }
     
     if(IsKeyPressed(KEY_SPACE)){
-        PlaySound(sound);
-        if(!isJumping){
+        if(isGrounded){
+            PlaySound(sound);
             collision->applyForce(btVector3(0, 150, 0), btVector3(0, 0, 0));
-            isJumping = true;
         }
     }
 
