@@ -39,7 +39,7 @@ void Physics::Init() {
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
-
+		ground = body;
 		//add the body to the dynamics world
 		dynamicsWorld->addRigidBody(body, 1, 1);
 	}
@@ -96,30 +96,70 @@ btRigidBody* Physics::CreateSphere() {
 	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
 	btRigidBody* body = new btRigidBody(rbInfo);
+	sphere = body;
 	
 	body->setFriction(1000);
 	dynamicsWorld->addRigidBody(body, 1, 1);
 	// void* callback = [this](btDynamicsWorld *world, btScalar timeStep){ this->onTickGroundSphere(world, timeStep); };
 	// dynamicsWorld->setInternalTickCallback([this](btDynamicsWorld *world, btScalar timeStep){ this->onTickGroundSphere(world, timeStep); });
-	dynamicsWorld->setInternalTickCallback(onTickGroundSphere, this);
+	// dynamicsWorld->setInternalTickCallback(onTickGroundSphere, this);
+
+	static auto callback_static = [this](btDynamicsWorld *world, btScalar timeStep){
+		if(this->isGrounded) return;
+
+		int numManifolds = world->getDispatcher()->getNumManifolds();
+		// printf("Grounded");
+		// if(numManifolds == 1){
+		// 	this->isGrounded = true;
+		// }
+
+		if(numManifolds < 1) return;
+		for (int i=0;i<numManifolds;i++)
+		{
+			btPersistentManifold* contactManifold =  world->getDispatcher()->getManifoldByIndexInternal(i);
+            const btCollisionObject *objA = contactManifold->getBody0();
+            const btCollisionObject *objB = contactManifold->getBody1();
+
+			if((objA == sphere && objB == ground) || (objA == ground && objB == sphere)){
+				int numContacts = contactManifold->getNumContacts();
+				for (int j=0;j<numContacts;j++)
+				{
+					btManifoldPoint& pt = contactManifold->getContactPoint(j);
+					if (pt.getDistance()<0.f)
+					{
+						this->isGrounded = true;
+						printf("grounded\n");
+						// const btVector3& ptA = pt.getPositionWorldOnA();
+						// const btVector3& ptB = pt.getPositionWorldOnB();
+						// const btVector3& normalOnB = pt.m_normalWorldOnB;
+					}
+				}
+			}
+
+		}
+    };
+	dynamicsWorld->setInternalTickCallback([](btDynamicsWorld *world, btScalar timeStep) { callback_static(world, timeStep); });
 
 	return body;
 }
 
-void Physics::onTickGroundSphere(btDynamicsWorld *world, btScalar timeStep) {
-    int numManifolds = world->getDispatcher()->getNumManifolds();
-	Physics* info = static_cast<Physics*>(world->getWorldUserInfo());
-    // printf("numManifolds = %d\n",numManifolds);
-	if(numManifolds == 1){
-		printf("Grounded");
-		info->isGrounded = true;
-	}
-}
+// void Physics::onTickGroundSphere(btDynamicsWorld *world, btScalar timeStep) {
+//     int numManifolds = world->getDispatcher()->getNumManifolds();
+// 	Physics* info = static_cast<Physics*>(world->getWorldUserInfo());
+//     // printf("numManifolds = %d\n",numManifolds);
+// 	if(numManifolds == 1){
+// 		printf("Grounded");
+// 		info->isGrounded = true;
+// 	}
+// }
 
 bool Physics::IsGrounded(){
 	return isGrounded;
 }
 
+void Physics::SetGrounded(bool grounded){
+	isGrounded = grounded;
+}
 // bool Physics::IsGrounded(){
 // 	bool result = false;
 //     int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();

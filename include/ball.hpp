@@ -20,11 +20,11 @@ class Ball {
     btRigidBody* collision;
     Matrix rotation = { 0 };
     Matrix transform = { 0 };
-    
+
     public:
         void Load();
         void Init(Physics& bullet);
         void Render() const;
-        const Vector3 Update(bool isGrounded);
+        const Vector3 Update(Physics& bullet);
         void Unload();
 };

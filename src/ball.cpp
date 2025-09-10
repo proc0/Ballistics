@@ -34,12 +34,13 @@ void Ball::Render() const {
     R3D_DrawModelPro(&sphere, transform);
 }
 
-const Vector3 Ball::Update(bool isGrounded){
+const Vector3 Ball::Update(Physics& bullet){
     
     if(IsKeyPressed(KEY_SPACE)){
-        if(isGrounded){
+        if(bullet.IsGrounded()){
             PlaySound(sound);
             collision->applyForce(btVector3(0, 150, 0), btVector3(0, 0, 0));
+            bullet.SetGrounded(false);
         }
     }
 
