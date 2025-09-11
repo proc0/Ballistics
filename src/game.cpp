@@ -36,6 +36,9 @@ void Game::Load() {
         .fovy = 45,
         .projection = CAMERA_PERSPECTIVE,
     };
+    // camera.position = (Vector3){ 0.0f, 2.0f, -100.0f };
+    // camera.target = (Vector3){ 0.0f, 2.0f, 0.0f };
+    // camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
 
 }
 
@@ -98,10 +101,17 @@ void Game::Unload(){
 }
 
 void Game::Update(){
+
     physics.Update();
     block.Update();
     const Vector3 ballPosition = ball.Update(physics);
-    camera.position.x = ballPosition.x;
-    camera.position.z = ballPosition.z + 30.0f;
+    // camera.position.x = ballPosition.x;
+    // camera.position.z = ballPosition.z + 30.0f;
+    camera.position = ballPosition + (Vector3){ 0.0f, 10.0f, 30.0f};
     camera.target = ballPosition;
+
+    // CameraYaw(&camera, -135*DEG2RAD, true);
+    // CameraPitch(&camera, -45*DEG2RAD, true, true, false);
+    // UpdateCamera(&camera, CAMERA_THIRD_PERSON); 
+
 }
