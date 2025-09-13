@@ -50,7 +50,7 @@ void Game::Loop(void *self) {
     // const int result = client->Update();
     // client->Render(result);
     client->Update();
-    client->Render();
+    client->Render(client->ball.position);
 }
 
 #if __EMSCRIPTEN__
@@ -63,7 +63,7 @@ EM_JS(int, getBrowserHeight, (), {
 });
 #endif
 
-void Game::Render() const {
+void Game::Render(const Vector3 pos) const {
 
 #if __EMSCRIPTEN__
     static int PADDING = 30; // set padding to avoid scrollbar and browser edge overlap
@@ -74,10 +74,15 @@ void Game::Render() const {
 
     R3D_Begin(camera);
     R3D_DrawMesh(&plane, &material, MatrixIdentity());
-    ball.Render();
+    ball.Render(pos);
     block.Render();
     R3D_End();
 
+    BeginMode3D(camera);
+    DrawLine3D(pos, { pos.x + 5, pos.y, pos.z }, RED);
+    DrawLine3D(pos, { pos.x, pos.y + 5, pos.z }, GREEN);
+    DrawLine3D(pos, { pos.x, pos.y, pos.z + 5 }, BLUE);
+    EndMode3D();
     DrawFPS(10, 10);
     EndDrawing();
 }

@@ -30,7 +30,7 @@ void Ball::Load(){
     sphere.materials[0].albedo.texture = texture; 
 }
 
-void Ball::Render() const {
+void Ball::Render(const Vector3 pos) const {
     R3D_DrawModelPro(&sphere, transform);
 }
 
@@ -83,13 +83,12 @@ const std::pair<Vector3, Vector3> Ball::Update(Physics& bullet){
             z: quatRot.getZ(),
             w: quatRot.getW(),
         };
-        // auto quatTrans = QuaternionFromMatrix(MatrixTranslate(x, y, z));
-        // transform = QuaternionToMatrix(QuaternionMultiply(quatTrans, quatRot2));
-        // Vector3 ballDelta = (Vector3){ x: transform.m12 - x, y: transform.m13 - y, z: transform.m14 - z };
+
         Vector3 ballDelta = (Vector3){ x: x - transform.m12, y: y - transform.m13, z: z - transform.m14 };
         transform = MatrixMultiply(QuaternionToMatrix(quatRot2), MatrixTranslate(x, y, z));
         Vector3 ballPos = (Vector3){ x: transform.m12, y: transform.m13, z: transform.m14 };
 
+        position = ballPos;
         return std::make_pair(ballPos, ballDelta);
     }
 }

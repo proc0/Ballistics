@@ -29,7 +29,7 @@ class Game {
         R3D_Light light;
         void Load();
         static void Loop(void *self);
-        void Render() const;
+        void Render(const Vector3 pos) const;
         void Run();
         void Update();
         void Unload();
