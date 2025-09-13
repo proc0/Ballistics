@@ -25,6 +25,6 @@ class Ball {
         void Load();
         void Init(Physics& bullet);
         void Render() const;
-        const Vector3 Update(Physics& bullet);
+        const std::pair<Vector3, Vector3> Update(Physics& bullet);
         void Unload();
 };

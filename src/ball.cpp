@@ -34,7 +34,7 @@ void Ball::Render() const {
     R3D_DrawModelPro(&sphere, transform);
 }
 
-const Vector3 Ball::Update(Physics& bullet){
+const std::pair<Vector3, Vector3> Ball::Update(Physics& bullet){
     
     if(IsKeyPressed(KEY_SPACE)){
         if(bullet.IsGrounded()){
@@ -85,8 +85,12 @@ const Vector3 Ball::Update(Physics& bullet){
         };
         // auto quatTrans = QuaternionFromMatrix(MatrixTranslate(x, y, z));
         // transform = QuaternionToMatrix(QuaternionMultiply(quatTrans, quatRot2));
+        // Vector3 ballDelta = (Vector3){ x: transform.m12 - x, y: transform.m13 - y, z: transform.m14 - z };
+        Vector3 ballDelta = (Vector3){ x: x - transform.m12, y: y - transform.m13, z: z - transform.m14 };
         transform = MatrixMultiply(QuaternionToMatrix(quatRot2), MatrixTranslate(x, y, z));
-        return (Vector3){ x: transform.m12, y: transform.m13, z: transform.m14 };
+        Vector3 ballPos = (Vector3){ x: transform.m12, y: transform.m13, z: transform.m14 };
+
+        return std::make_pair(ballPos, ballDelta);
     }
 }
 
