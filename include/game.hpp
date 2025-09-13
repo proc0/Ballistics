@@ -5,6 +5,7 @@
 #endif
 #include <raylib.h>
 #include <rcamera.h>
+#include <raygizmo.h>
 #include <r3d.h>
 
 #include "config.h"
@@ -24,8 +25,10 @@ class Game {
     R3D_Material material = { 0 };
     R3D_Skybox skybox;
     Vector3 mousePosition;
-
+    Matrix camMatrix;
+    
     public:
+        Transform camTrans;
         R3D_Light light;
         void Load();
         static void Loop(void *self);

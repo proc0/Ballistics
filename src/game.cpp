@@ -71,14 +71,13 @@ void Game::Render() const {
 #endif
 
     BeginDrawing();
-
     R3D_Begin(camera);
-    R3D_DrawMesh(&plane, &material, MatrixIdentity());
-    ball.Render();
-    block.Render();
+        R3D_DrawMesh(&plane, &material, MatrixIdentity());
+        ball.Render();
+        block.Render();
+        R3D_End();
+        DrawFPS(10, 10);
     R3D_End();
-
-    DrawFPS(10, 10);
     EndDrawing();
 }
 
@@ -104,9 +103,34 @@ void Game::Unload(){
 
 void Game::Update(){
 
+    Vector3 forwardVector = { 0, 0, 1};
+    Vector3 rightVector = Vector3Normalize(Vector3CrossProduct({ 0, 1, 0 }, forwardVector));
+    Vector3 upVector = Vector3Normalize(Vector3CrossProduct(forwardVector, rightVector));
+    float transZ = Vector3DotProduct(camera.position, forwardVector);
+    float transX = Vector3DotProduct(camera.position, rightVector);
+    float transY = Vector3DotProduct(camera.position, upVector);
+    camMatrix = {
+        m0: rightVector.x,
+        m4: rightVector.y,
+        m8: rightVector.z,
+        m12: -transX,
+        m1: upVector.x,
+        m5: upVector.y,
+        m9: upVector.z,
+        m13: -transY,
+        m2: forwardVector.x,
+        m6: forwardVector.y,
+        m10: forwardVector.z,
+        m14: -transZ,
+        m3: 0,
+        m7: 0,
+        m11: 0,
+        m15: 1
+    };
+    camTrans = { (Vector3){ -transX, -transY, -transZ }, QuaternionFromMatrix(camMatrix), (Vector3){ 1, 1, 1 }};
+    const std::pair<Vector3, Vector3> ballPosition = ball.Update(physics, camMatrix);
     physics.Update();
     block.Update();
-    const std::pair<Vector3, Vector3> ballPosition = ball.Update(physics);
 
 
     // CameraMoveRight(&camera, ballPosition.second.x, false);
@@ -142,17 +166,21 @@ void Game::Update(){
     //     m15: 1
     // };
     // camera.position = ballPosition + (Vector3){30.0f, 0.0f, 30.0f};
-    // camera.position.z = ballPosition.z + 30.0f;
-    CameraYaw(&camera, -GetMouseDelta().x*0.003f, true);
+    camera.position.z = ballPosition.first.z + 30.0f;
+    camera.target = ballPosition.first;
+    // CameraYaw(&camera, -GetMouseDelta().x*0.003f, true);
     // camera.position = Vector3Transform(camera.position, lookAt);
     // camera.position += ballPosition.second;
     // camera.position.z += 30.0f;
-    camera.target = ballPosition.first;
-    camera.position += ballPosition.second;
-    camera.position.y = 20.0f;
+    // camera.position += ballPosition.second;
+    // camera.position.y = 20.0f;
 
     // CameraYaw(&camera, -135*DEG2RAD, true);
     // CameraPitch(&camera, -45*DEG2RAD, true, true, false);
-    UpdateCamera(&camera, CAMERA_THIRD_PERSON); 
-
+    // UpdateCamera(&camera, CAMERA_THIRD_PERSON); 
+    R3D_Begin(camera);
+    BeginDrawing();
+    DrawGizmo3D(GIZMO_LOCAL, &camTrans);
+    EndDrawing();
+    R3D_End();
 }
