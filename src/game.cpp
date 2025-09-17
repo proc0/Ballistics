@@ -115,12 +115,12 @@ void Game::Update(){
 
     Matrix lookAt = MatrixLookAt(camera.position, ballPosition.first, camera.up);
     lookatpos = Vector3Transform(Vector3Subtract(camera.position, ballPosition.first), lookAt);
-    
+
     camera.target = ballPosition.first;
     camera.position += ballPosition.second;
     camera.position.y = 20.0f;
     // CameraYaw(&camera, -135*DEG2RAD, true);
     // CameraPitch(&camera, -45*DEG2RAD, true, true, false);
-    // UpdateCamera(&camera, CAMERA_THIRD_PERSON); 
+    UpdateCamera(&camera, CAMERA_THIRD_PERSON); 
 
 }
