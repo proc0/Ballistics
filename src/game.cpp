@@ -50,7 +50,7 @@ void Game::Loop(void *self) {
     // const int result = client->Update();
     // client->Render(result);
     client->Update();
-    client->Render(client->ball.position);
+    client->Render(client->lookatpos);
 }
 
 #if __EMSCRIPTEN__
@@ -113,51 +113,14 @@ void Game::Update(){
     block.Update();
     const std::pair<Vector3, Vector3> ballPosition = ball.Update(physics);
 
-
-    // CameraMoveRight(&camera, ballPosition.second.x, false);
-    // CameraMoveForward(&camera, ballPosition.second.z, false);
-    // Matrix rotation = MatrixRotate(GetCameraUp(&camera), -GetMouseDelta().x*0.003f);
-    // Vector3 view = Vector3Subtract(camera.position, camera.target);
-    // view = Vector3Transform(view, rotation);
-    // camera.position = Vector3Add(camera.target, view);
-
-
-    // Vector3 forwardVector = Vector3Normalize(Vector3Subtract(camera.position, ballPosition.second));
-    // Vector3 rightVector = Vector3Normalize(Vector3CrossProduct(camera.up, forwardVector));
-    // Vector3 upVector = Vector3Normalize(Vector3CrossProduct(forwardVector, rightVector));
-    // float transZ = Vector3DotProduct(camera.position, forwardVector);
-    // float transX = Vector3DotProduct(camera.position, rightVector);
-    // float transY = Vector3DotProduct(camera.position, upVector);
-    // Matrix lookAt = {
-    //     m0: rightVector.x,
-    //     m4: rightVector.y,
-    //     m8: rightVector.z,
-    //     m12: -transX,
-    //     m1: upVector.x,
-    //     m5: upVector.y,
-    //     m9: upVector.z,
-    //     m13: -transY,
-    //     m2: forwardVector.x,
-    //     m6: forwardVector.y,
-    //     m10: forwardVector.z,
-    //     m14: -transZ,
-    //     m3: 0,
-    //     m7: 0,
-    //     m11: 0,
-    //     m15: 1
-    // };
-    // camera.position = ballPosition + (Vector3){30.0f, 0.0f, 30.0f};
-    // camera.position.z = ballPosition.z + 30.0f;
-    CameraYaw(&camera, -GetMouseDelta().x*0.003f, true);
-    // camera.position = Vector3Transform(camera.position, lookAt);
-    // camera.position += ballPosition.second;
-    // camera.position.z += 30.0f;
+    Matrix lookAt = MatrixLookAt(camera.position, ballPosition.first, camera.up);
+    lookatpos = Vector3Transform(Vector3Subtract(camera.position, ballPosition.first), lookAt);
+    
     camera.target = ballPosition.first;
     camera.position += ballPosition.second;
     camera.position.y = 20.0f;
-
     // CameraYaw(&camera, -135*DEG2RAD, true);
     // CameraPitch(&camera, -45*DEG2RAD, true, true, false);
-    UpdateCamera(&camera, CAMERA_THIRD_PERSON); 
+    // UpdateCamera(&camera, CAMERA_THIRD_PERSON); 
 
 }

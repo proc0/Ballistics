@@ -24,7 +24,8 @@ class Game {
     R3D_Material material = { 0 };
     R3D_Skybox skybox;
     Vector3 mousePosition;
-
+    Vector3 lookatpos;
+    
     public:
         R3D_Light light;
         void Load();
