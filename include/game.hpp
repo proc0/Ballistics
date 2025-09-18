@@ -27,7 +27,8 @@ class Game {
     Vector3 lookatpos;
     Vector3 lookatpos2;
     Matrix lookAt;
-
+    Quaternion ballOrientation;
+    
     public:
         R3D_Light light;
         void Load();
