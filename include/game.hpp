@@ -25,12 +25,14 @@ class Game {
     R3D_Skybox skybox;
     Vector3 mousePosition;
     Vector3 lookatpos;
-    
+    Vector3 lookatpos2;
+    Matrix lookAt;
+
     public:
         R3D_Light light;
         void Load();
         static void Loop(void *self);
-        void Render(const Vector3 pos) const;
+        void Render(const Vector3 pos, const Vector3 pos2) const;
         void Run();
         void Update();
         void Unload();
