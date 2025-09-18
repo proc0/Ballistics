@@ -40,7 +40,9 @@ void Game::Load() {
     UpdateCamera(&camera, CAMERA_THIRD_PERSON);
     lookatpos = (Vector3) { 0, 0, 0 };
     lookatpos2 = (Vector3) { 0, 0, 0 };
+    forwardZ = (Vector3) { 0, 0, 1 };
     ballOrientation = QuaternionIdentity();
+    angle = 0;
     // camera.position = (Vector3){ 0.0f, 2.0f, -100.0f };
     // camera.target = (Vector3){ 0.0f, 2.0f, 0.0f };
     // camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
@@ -84,7 +86,8 @@ void Game::Render(const Vector3 pos, const Vector3 pos2) const {
     BeginMode3D(camera);
     DrawLine3D(pos, { pos.x + 5, pos.y, pos.z }, RED);
     DrawLine3D(pos, { pos.x, pos.y + 5, pos.z  }, GREEN);
-    DrawLine3D(pos, {pos2.x, pos2.y, pos2.z - 5.0f}, BLUE);
+    // DrawLine3D(pos, {pos2.x, pos2.y, pos2.z - 5.0f}, BLUE);
+    DrawLine3D(pos, pos2, BLUE);
     EndMode3D();
     DrawFPS(10, 10);
     EndDrawing();
@@ -116,26 +119,37 @@ void Game::Update(){
     block.Update();
     const std::pair<Vector3, Vector3> ballPosition = ball.Update(physics);
 
-    
     camera.target = ballPosition.first;
     camera.position += ballPosition.second;
     camera.position.y = 20.0f;
     lookatpos = ballPosition.first;
-    // lookAt = MatrixLookAt(camera.position, ballPosition.first, (Vector3) { 0, 1, 0 });
-    // lookatpos = Vector3Transform(camera.position, lookAt);
-    // lookatpos2 = camera.position;
-    // Quaternion lookAtQuat = QuaternionFromMatrix(lookAt);
-    // Vector3 relativePos = Vector3Subtract(camera.position, ballPosition.first);
     float rotDeg = -135*DEG2RAD*GetMouseDelta().x*0.003f;
-    // Vector3 tempV = {ballPosition.first.x, ballPosition.first.y, ballPosition.first.z + 5 };
-    Quaternion camRot = QuaternionFromMatrix(MatrixRotateY(rotDeg));
-    // ballOrientation = QuaternionAdd(ballOrientation, camRot);
-    Vector3 pointV = { lookatpos2.x, lookatpos2.y, lookatpos2.z - 2.0f };
-    // lookatpos2 = Vector3Transform(pointV, camRot);
-    lookatpos2 = Vector3RotateByQuaternion(pointV, camRot);
-    // lookatpos2.z -= 5.0f;
     CameraYaw(&camera, rotDeg, true);
     // CameraPitch(&camera, -45*DEG2RAD, true, true, false);
     // UpdateCamera(&camera, CAMERA_THIRD_PERSON); 
+
+    // lookAt = MatrixLookAt(camera.position, ballPosition.first, (Vector3) { 0, 1, 0 });
+    // lookatpos = Vector3Transform(camera.position, lookAt);
+    // lookatpos2 = camera.position;
+    // Vector3 relativePos = Vector3Subtract(camera.position, ballPosition.first);
+    // forwardZ = Vector3RotateByAxisAngle(forwardZ, {0, 1, 0}, rotDeg);
+    // Matrix camMat = MatrixLookAt(camera.position, ballPosition.first, {0, 1, 0});
+    // Matrix ballMat = MatrixMultiply(MatrixTranslate(ballPosition.first.x, ballPosition.first.y, ballPosition.first.z), camMat);
+    // Quaternion camQuat = QuaternionFromMatrix(camMat);
+    // printf("x: %f,\n y: %f,\n z: %f...\n", forwardZ.x, forwardZ.y, forwardZ.z);
+    // angle += rotDeg;
+    
+    // forwardZ = Vector3RotateByAxisAngle((Vector3){ ballPosition.first.x, ballPosition.first.y, ballPosition.first.z - 5.0f }, ballPosition.first, angle);
+    forwardZ = Vector3Invert(Vector3Subtract(camera.position, ballPosition.first));
+    // forwardZ.y = 0;
+    // forwardZ = Vector3Normalize(forwardZ);
+    // lookatpos2 = Vector3Transform(forwardZ, MatrixTranslate(ballPosition.first.x, ballPosition.first.y, ballPosition.first.z - 5.0f));
+    lookatpos2 = forwardZ;
+    // Quaternion camRot = QuaternionFromMatrix(MatrixRotateY(rotDeg));
+    // ballOrientation = QuaternionAdd(ballOrientation, camRot);
+    // lookatpos2 = Vector3Transform(pointV, camRot);
+    // lookatpos2 = Vector3RotateByQuaternion(pointV, camRot);
+    // lookatpos2.z -= 5.0f;
+
 
 }

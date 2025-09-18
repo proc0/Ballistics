@@ -28,6 +28,8 @@ class Game {
     Vector3 lookatpos2;
     Matrix lookAt;
     Quaternion ballOrientation;
+    Vector3 forwardZ;
+    float angle;
     
     public:
         R3D_Light light;
