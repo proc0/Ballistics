@@ -30,12 +30,12 @@ class Game {
     Quaternion ballOrientation;
     Vector3 forwardZ;
     float angle;
-    
+
     public:
         R3D_Light light;
         void Load();
         static void Loop(void *self);
-        void Render(const Vector3 pos, const Vector3 pos2) const;
+        void Render(const Vector3 pos, const Matrix lookat) const;
         void Run();
         void Update();
         void Unload();
