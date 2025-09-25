@@ -39,13 +39,6 @@ void Game::Load() {
 
     UpdateCamera(&camera, CAMERA_THIRD_PERSON);
     lookatpos = (Vector3) { 0, 0, 0 };
-    lookatpos2 = (Vector3) { 0, 0, 0 };
-    forwardZ = (Vector3) { 0, 0, 1 };
-    ballOrientation = QuaternionIdentity();
-    angle = 0;
-    // camera.position = (Vector3){ 0.0f, 2.0f, -100.0f };
-    // camera.target = (Vector3){ 0.0f, 2.0f, 0.0f };
-    // camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
 
 }
 
@@ -55,7 +48,7 @@ void Game::Loop(void *self) {
     // const int result = client->Update();
     // client->Render(result);
     client->Update();
-    client->Render(client->lookatpos, client->lookAt);
+    client->Render(client->lookatpos);
 }
 
 #if __EMSCRIPTEN__
@@ -68,7 +61,7 @@ EM_JS(int, getBrowserHeight, (), {
 });
 #endif
 
-void Game::Render(const Vector3 pos, const Matrix lookat) const {
+void Game::Render(const Vector3 pos) const {
 
 #if __EMSCRIPTEN__
     static int PADDING = 30; // set padding to avoid scrollbar and browser edge overlap
@@ -78,22 +71,20 @@ void Game::Render(const Vector3 pos, const Matrix lookat) const {
     BeginDrawing();
 
     R3D_Begin(camera);
-    // R3D_DrawMesh(&plane, &material, MatrixIdentity());
+    R3D_DrawMesh(&plane, &material, MatrixIdentity());
     ball.Render(pos);
     block.Render();
     R3D_End();
 
-    BeginMode3D(camera);
-    DrawPoint3D(pos, BLACK);
-    DrawLine3D(pos, { pos.x + 5, pos.y, pos.z }, RED);
-    DrawLine3D(pos, { pos.x, pos.y + 5, pos.z  }, GREEN);
-    // const Vector3 pos2 = Vector3Transform(Vector3Transform(pos, lookAt), MatrixTranslate(pos.x, pos.y, pos.z));
-    const Vector3 pos2 = Vector3Transform({ pos.x, pos.y, pos.z - 5.0f  }, lookAt);
-    // DrawLine3D(pos, {pos2.x, pos2.y, pos2.z - 5.0f}, BLUE);
-    DrawLine3D(pos2, pos, BLUE);
-    DrawPoint3D(pos2, BLACK);
-    EndMode3D();
-    DrawFPS(10, 10);
+    // BeginMode3D(camera);
+    // // const Vector3 temp = { 0, 0, pos2.z };
+    // // const Vector3 temp2 = Vector3RotateByAxisAngle(temp, { 0, 1, 0 }, -90.0f);
+    // // const Vector3 pos3 = { pos2.x, pos2.y, temp.z };
+    // // DrawLine3D(pos2, pos, BLUE);
+    // // DrawLine3D(pos3, pos, RED);
+    // // DrawPoint3D(pos2, YELLOW);
+    // EndMode3D();
+    // DrawFPS(10, 10);
     EndDrawing();
 }
 
@@ -121,14 +112,22 @@ void Game::Update(){
 
     physics.Update();
     block.Update();
-    const std::pair<Vector3, Vector3> ballPosition = ball.Update(physics);
 
-    forwardZ = Vector3Subtract(ballPosition.first, camera.position);
-    // Matrix ballMat = MatrixMultiply(MatrixTranslate(ballPosition.first.x, ballPosition.first.y, ballPosition.first.z), camMat);
-    forwardZ.y = ballPosition.first.y;
-    Matrix ballTrans = MatrixTranslate(ballPosition.first.x, ballPosition.first.y, ballPosition.first.z);
-    lookatpos2 = Vector3Reflect(Vector3Transform(forwardZ, ballTrans), { 0, 1, 0 });
-    lookAt = MatrixLookAt(ballPosition.first, lookatpos2, { 0, 1, 0 });
+    float rotDeg = -135*DEG2RAD*GetMouseDelta().x*0.003f;
+    CameraYaw(&camera, rotDeg, true);
+
+    const std::pair<Vector3, Vector3> ballPosition = ball.Update(physics, camera.position);
+
+    // forwardZ = Vector3Subtract(ballPosition.first, camera.position);
+    // // Matrix ballMat = MatrixMultiply(MatrixTranslate(ballPosition.first.x, ballPosition.first.y, ballPosition.first.z), camMat);
+    // forwardZ.y = ballPosition.first.y;
+    // forwardZ = Vector3Scale(Vector3RotateByAxisAngle(forwardZ, {0, 1, 0}, -90.0f), 0.4f);
+    // Matrix ballTrans = MatrixTranslate(ballPosition.first.x, ballPosition.first.y, ballPosition.first.z);
+    // lookatpos2 = Vector3Transform(forwardZ, ballTrans);
+
+
+    // lookAt = MatrixTranslate(lookatpos2.x, lookatpos2.y, lookatpos2.z);
+    // lookAt = MatrixLookAt(ballPosition.first, lookatpos2, { 0, 1, 0 });
     // lookatpos = Vector3Transform(Vector3CrossProduct(lookatpos2, { 0, 1, 0}), ballTrans);
     // lookatpos = Vector3CrossProduct(lookatpos2, { 0, 1, 0});
     // printf("x: %f,\n y: %f,\n z: %f...\n", lookatpos2.x, lookatpos2.y, lookatpos2.z);
@@ -139,8 +138,7 @@ void Game::Update(){
     camera.position += ballPosition.second;
     camera.position.y = 10.0f;
     lookatpos = ballPosition.first;
-    float rotDeg = -135*DEG2RAD*GetMouseDelta().x*0.003f;
-    CameraYaw(&camera, rotDeg, true);
+
     // CameraPitch(&camera, -45*DEG2RAD, true, true, false);
     // UpdateCamera(&camera, CAMERA_THIRD_PERSON); 
 

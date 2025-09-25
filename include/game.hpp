@@ -23,19 +23,19 @@ class Game {
     R3D_Mesh plane = { 0 };
     R3D_Material material = { 0 };
     R3D_Skybox skybox;
-    Vector3 mousePosition;
+    // Vector3 mousePosition;
     Vector3 lookatpos;
-    Vector3 lookatpos2;
-    Matrix lookAt;
-    Quaternion ballOrientation;
-    Vector3 forwardZ;
-    float angle;
+    // Vector3 lookatpos2;
+    // Matrix lookAt;
+    // Quaternion ballOrientation;
+    // Vector3 forwardZ;
+    // float angle;
 
     public:
         R3D_Light light;
         void Load();
         static void Loop(void *self);
-        void Render(const Vector3 pos, const Matrix lookat) const;
+        void Render(const Vector3 pos) const;
         void Run();
         void Update();
         void Unload();

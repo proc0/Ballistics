@@ -18,12 +18,12 @@ class Ball {
     btRigidBody* collision;
     Matrix rotation = { 0 };
     Matrix transform = { 0 };
+    Vector3 position;
     
     public:
-        Vector3 position;
         void Load();
         void Init(Physics& bullet);
         void Render(const Vector3 pos) const;
-        const std::pair<Vector3, Vector3> Update(Physics& bullet);
+        const std::pair<Vector3, Vector3> Update(Physics& bullet, Vector3 cameraPos);
         void Unload();
 };

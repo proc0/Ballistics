@@ -1,7 +1,7 @@
 #include "ball.hpp"
 
 #define BALL_MAX_SPEED 50.0f
-#define BALL_ACCELERATION 10.0f
+#define BALL_ACCELERATION 4.0f
 #define BALL_BREAK_FORCE 20.0f
 
 void Ball::Init(Physics& bullet){
@@ -34,8 +34,15 @@ void Ball::Render(const Vector3 pos) const {
     R3D_DrawModelPro(&sphere, transform);
 }
 
-const std::pair<Vector3, Vector3> Ball::Update(Physics& bullet){
+const std::pair<Vector3, Vector3> Ball::Update(Physics& bullet, Vector3 cameraPos) {
     
+    Vector3 forwardZ = Vector3Subtract(position, cameraPos);
+    forwardZ.y = position.y;
+    Vector3 forwardX = Vector3RotateByAxisAngle(forwardZ, {0, 1, 0}, -90.0f);
+    Matrix ballTrans = MatrixTranslate(position.x, position.y, position.z);
+    Vector3 fwdZ = Vector3Normalize(Vector3Transform(forwardZ, ballTrans));
+    Vector3 fwdX = Vector3Normalize(Vector3Transform(forwardX, ballTrans));
+
     if(IsKeyPressed(KEY_SPACE)){
         if(bullet.IsGrounded()){
             PlaySound(sound);
@@ -46,25 +53,25 @@ const std::pair<Vector3, Vector3> Ball::Update(Physics& bullet){
 
     if (IsKeyDown(KEY_W)) {
         if(fabsf(collision->getLinearVelocity().getZ()) < BALL_MAX_SPEED){
-            collision->applyForce(btVector3(0, 0, -BALL_ACCELERATION), btVector3(0.0f, 0.0f, 0.0f));
+            collision->applyImpulse(btVector3(fwdZ.x, 0, fwdZ.z), btVector3(0.0f, 0.0f, 0.0f));
         }
     }
 
     if (IsKeyDown(KEY_S)) {
         if(collision->getLinearVelocity().getZ() < BALL_MAX_SPEED){
-            collision->applyForce(btVector3(0.0f, 0.0f, BALL_ACCELERATION), btVector3(0.0f, 0.0f, 0.0f));
+            collision->applyImpulse(btVector3(fwdX.x, 0, fwdZ.z), btVector3(0.0f, 0.0f, 0.0f));
         }
     }
 
     if (IsKeyDown(KEY_A)) {
         if(fabsf(collision->getLinearVelocity().getX()) < BALL_MAX_SPEED){
-            collision->applyForce(btVector3(-BALL_ACCELERATION, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f));
+            collision->applyImpulse(btVector3(-fwdX.x, 0.0f, fwdZ.z), btVector3(0.0f, 0.0f, 0.0f));
         }
     }
 
     if (IsKeyDown(KEY_D)) {
         if(collision->getLinearVelocity().getX() < BALL_MAX_SPEED){
-            collision->applyForce(btVector3(BALL_ACCELERATION, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f));
+            collision->applyImpulse(btVector3(fwdZ.x, 0, -fwdZ.z), btVector3(0.0f, 0.0f, 0.0f));
         }
     }
 
