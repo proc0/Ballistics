@@ -26,11 +26,11 @@ void Ball::Load(){
 
     // Create scene objects
     sphere = R3D_LoadModel("assets/ball.obj");
-    texture = LoadTexture("assets/uvgrid_1024.png");
+    texture = LoadTexture("assets/soccertext.jpg");
     sphere.materials[0].albedo.texture = texture; 
 }
 
-void Ball::Render(const Vector3 pos) const {
+void Ball::Render() const {
     R3D_DrawModelPro(&sphere, transform);
 }
 
@@ -39,16 +39,13 @@ const std::pair<Vector3, Vector3> Ball::Update(Physics& bullet, Vector3 cameraPo
     Vector3 forwardZ = Vector3Subtract(position, cameraPos);
     forwardZ.y = position.y;
     Vector3 forwardX = Vector3RotateByAxisAngle(forwardZ, {0, 1, 0}, -90.0f);
-    // Matrix ballTrans = MatrixTranslate(position.x, position.y, position.z);
-    // Vector3 fwdZ = Vector3Scale(Vector3Transform(forwardZ, ballTrans), 0.2f);
-    // Vector3 fwdX = Vector3Scale(Vector3Transform(forwardX, ballTrans), 0.2f);
     Vector3 fwdZ = Vector3Normalize(forwardZ);
     Vector3 fwdX = Vector3Normalize(forwardX);
 
     if(IsKeyPressed(KEY_SPACE)){
         if(bullet.IsGrounded()){
             PlaySound(sound);
-            collision->applyForce(btVector3(0, 150, 0), btVector3(0, 0, 0));
+            collision->applyForce(btVector3(0, 300.0f, 0), btVector3(0, 0, 0));
             bullet.SetGrounded(false);
         }
     }
@@ -87,7 +84,6 @@ const std::pair<Vector3, Vector3> Ball::Update(Physics& bullet, Vector3 cameraPo
         float z = float(trans.getOrigin().getZ());
 
         btQuaternion quatRot = trans.getRotation();
-        // transform = MatrixTranslate(x, y, z);
         Quaternion quatRot2 = (Quaternion){
             x: quatRot.getX(),
             y: quatRot.getY(),

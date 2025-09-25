@@ -23,7 +23,7 @@ class Ball {
     public:
         void Load();
         void Init(Physics& bullet);
-        void Render(const Vector3 pos) const;
+        void Render() const;
         const std::pair<Vector3, Vector3> Update(Physics& bullet, Vector3 cameraPos);
         void Unload();
 };
