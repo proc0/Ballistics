@@ -25,7 +25,7 @@ void Ball::Load(){
     sound = LoadSound(pathSoundSplat);
 
     // Create scene objects
-    sphere = R3D_LoadModel("assets/ball.obj");
+    sphere = R3D_LoadModel("assets/soccerball.glb");
     texture = LoadTexture("assets/soccertext.jpg");
     sphere.materials[0].albedo.texture = texture; 
 }
