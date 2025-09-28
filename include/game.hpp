@@ -21,6 +21,7 @@ class Game {
     Block block;
     Camera camera;
     R3D_Mesh plane = { 0 };
+    R3D_Model ramp = { 0 };
     R3D_Material material = { 0 };
     R3D_Skybox skybox;
     Vector3 ballPos;

@@ -15,6 +15,9 @@ void Game::Load() {
 
     R3D_EnableSkybox(skybox);
     
+    ramp = R3D_LoadModel("assets/ramp.glb");
+    Model rampMesh = LoadModel("assets/ramp.glb");
+
     plane = R3D_GenMeshPlane(300, 300, 1, 1, true);
     material = R3D_GetDefaultMaterial();
     material.albedo.color = (Color) { 31, 31, 31, 255 };
@@ -25,7 +28,7 @@ void Game::Load() {
     ball.Load();
     block.Load();
 
-    physics.Init();
+    physics.Init(rampMesh);
     ball.Init(physics);
     block.Init(physics);
     // Camera setup
@@ -41,6 +44,8 @@ void Game::Load() {
     UpdateCamera(&camera, CAMERA_THIRD_PERSON);
     ballPos = (Vector3) { 0, 0, 0 };
 
+    // unload temp model used for physics
+    UnloadModel(rampMesh);
 }
 
 void Game::Loop(void *self) {
@@ -73,6 +78,7 @@ void Game::Render(const Vector3 ballPos, const Vector3 ballDir) const {
 
     R3D_Begin(camera);
     R3D_DrawMesh(&plane, &material, MatrixIdentity());
+    R3D_DrawModel(&ramp, Vector3 { 0, 0, 0 }, 1.0f);
     ball.Render();
     block.Render();
     R3D_End();
@@ -102,6 +108,7 @@ void Game::Unload(){
     ball.Unload();
     physics.Unload();
     R3D_UnloadMesh(&plane);
+    R3D_UnloadModel(&ramp, true);
     R3D_UnloadSkybox(skybox);
 }
 
