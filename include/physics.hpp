@@ -1,6 +1,7 @@
 #pragma once
 
 #include <btBulletDynamicsCommon.h>
+#include <raylib.h>
 
 class Physics {
     btDefaultCollisionConfiguration* collisionConfiguration;
@@ -20,7 +21,7 @@ class Physics {
         btRigidBody* CreateSphere();
         // static void onTickGroundSphere(btDynamicsWorld *world, btScalar timeStep);
 
-        void Init();
+        void Init(Model &rampMesh);
         void Update();
         void Unload();
         bool IsGrounded();

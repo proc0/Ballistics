@@ -18,7 +18,7 @@ void Physics::Load() {
 	dynamicsWorld->setGravity(btVector3(0, -10, 0));
 }
 
-void Physics::Init() {
+void Physics::Init(Model &rampMesh) {
 	
 	//the ground is a cube of side 100 at position y = -56.
 	//the sphere will hit it at y = -6, with center at -5
@@ -41,7 +41,51 @@ void Physics::Init() {
 		btRigidBody* body = new btRigidBody(rbInfo);
 		ground = body;
 		//add the body to the dynamics world
-		dynamicsWorld->addRigidBody(body, 1, 1);
+		dynamicsWorld->addRigidBody(body);
+	}
+
+	{
+		// 1. Create a btTriangleMesh and add your triangles
+		btTriangleMesh* trimesh = new btTriangleMesh();
+
+		float* vertices = rampMesh.meshes[0].vertices;
+		int vertexCount = rampMesh.meshes[0].vertexCount;
+		unsigned short* indices = rampMesh.meshes[0].indices; // Or unsigned int* depending on your setup
+		int triangleCount = rampMesh.meshes[0].triangleCount;
+		for (int i = 0; i < triangleCount; ++i)
+		{
+			// Get vertex indices for the current triangle
+			int idx0 = indices[i * 3 + 0];
+			int idx1 = indices[i * 3 + 1];
+			int idx2 = indices[i * 3 + 2];
+
+			// Get vertex positions
+			btVector3 v0(vertices[idx0 * 3 + 0], vertices[idx0 * 3 + 1], vertices[idx0 * 3 + 2]);
+			btVector3 v1(vertices[idx1 * 3 + 0], vertices[idx1 * 3 + 1], vertices[idx1 * 3 + 2]);
+			btVector3 v2(vertices[idx2 * 3 + 0], vertices[idx2 * 3 + 1], vertices[idx2 * 3 + 2]);
+
+			printf("%f - %f - %f\n", v0.getX(), v1.getX(), v2.getX());
+			trimesh->addTriangle(v0, v1, v2);
+		}
+
+		// Add your mesh data (vertices and indices) to trimesh
+		// Example:
+		// trimesh->addTriangle(vertex0, vertex1, vertex2);
+
+		// 2. Create the btBvhTriangleMeshShape
+		btBvhTriangleMeshShape* meshShape = new btBvhTriangleMeshShape(trimesh, true); // 'true' for useQuantizedAabbCompression
+
+		btTransform rampTransform;
+		rampTransform.setIdentity();
+		rampTransform.setOrigin(btVector3(0, 0, 0));
+
+		// 3. Create a btRigidBody with zero mass (static)
+		btDefaultMotionState* motionState = new btDefaultMotionState(rampTransform);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(0, motionState, meshShape, btVector3(0,0,0)); // Zero mass for static
+		btRigidBody* body = new btRigidBody(rbInfo);
+
+		// 4. Add the rigid body to your dynamics world
+		dynamicsWorld->addRigidBody(body);
 	}
 }
 
@@ -99,7 +143,7 @@ btRigidBody* Physics::CreateSphere() {
 	sphere = body;
 	
 	body->setFriction(1000);
-	dynamicsWorld->addRigidBody(body, 1, 1);
+	dynamicsWorld->addRigidBody(body);
 	// void* callback = [this](btDynamicsWorld *world, btScalar timeStep){ this->onTickGroundSphere(world, timeStep); };
 	// dynamicsWorld->setInternalTickCallback([this](btDynamicsWorld *world, btScalar timeStep){ this->onTickGroundSphere(world, timeStep); });
 	// dynamicsWorld->setInternalTickCallback(onTickGroundSphere, this);

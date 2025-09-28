@@ -15,6 +15,9 @@ void Game::Load() {
 
     R3D_EnableSkybox(skybox);
     
+    ramp = R3D_LoadModel("assets/ramp.glb");
+    Model rampMesh = LoadModel("assets/ramp.glb");
+
     plane = R3D_GenMeshPlane(300, 300, 1, 1, true);
     material = R3D_GetDefaultMaterial();
     material.albedo.color = (Color) { 31, 31, 31, 255 };
@@ -25,7 +28,7 @@ void Game::Load() {
     ball.Load();
     block.Load();
 
-    physics.Init();
+    physics.Init(rampMesh);
     ball.Init(physics);
     block.Init(physics);
     // Camera setup
@@ -33,13 +36,16 @@ void Game::Load() {
         .position = (Vector3) { 0, 12, 24 },
         .target = (Vector3) { 0, 0, 0 },
         .up = (Vector3) { 0, 1, 0 },
-        .fovy = 45,
+        .fovy = 60,
         .projection = CAMERA_PERSPECTIVE,
     };
-    // camera.position = (Vector3){ 0.0f, 2.0f, -100.0f };
-    // camera.target = (Vector3){ 0.0f, 2.0f, 0.0f };
-    // camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
 
+    DisableCursor();
+    UpdateCamera(&camera, CAMERA_THIRD_PERSON);
+    ballPos = (Vector3) { 0, 0, 0 };
+
+    // unload temp model used for physics
+    UnloadModel(rampMesh);
 }
 
 void Game::Loop(void *self) {
@@ -48,7 +54,7 @@ void Game::Loop(void *self) {
     // const int result = client->Update();
     // client->Render(result);
     client->Update();
-    client->Render();
+    client->Render(client->ballPos, client->ballDir);
 }
 
 #if __EMSCRIPTEN__
@@ -61,7 +67,7 @@ EM_JS(int, getBrowserHeight, (), {
 });
 #endif
 
-void Game::Render() const {
+void Game::Render(const Vector3 ballPos, const Vector3 ballDir) const {
 
 #if __EMSCRIPTEN__
     static int PADDING = 30; // set padding to avoid scrollbar and browser edge overlap
@@ -72,10 +78,15 @@ void Game::Render() const {
 
     R3D_Begin(camera);
     R3D_DrawMesh(&plane, &material, MatrixIdentity());
+    R3D_DrawModel(&ramp, Vector3 { 0, 0, 0 }, 1.0f);
     ball.Render();
     block.Render();
     R3D_End();
 
+    BeginMode3D(camera);
+    DrawLine3D(ballDir, ballPos, BLUE);
+    EndMode3D();
+    
     DrawFPS(10, 10);
     EndDrawing();
 }
@@ -97,6 +108,7 @@ void Game::Unload(){
     ball.Unload();
     physics.Unload();
     R3D_UnloadMesh(&plane);
+    R3D_UnloadModel(&ramp, true);
     R3D_UnloadSkybox(skybox);
 }
 
@@ -104,14 +116,19 @@ void Game::Update(){
 
     physics.Update();
     block.Update();
-    const Vector3 ballPosition = ball.Update(physics);
-    // camera.position.x = ballPosition.x;
-    // camera.position.z = ballPosition.z + 30.0f;
-    camera.position = ballPosition + (Vector3){ 0.0f, 10.0f, 30.0f};
-    camera.target = ballPosition;
 
-    // CameraYaw(&camera, -135*DEG2RAD, true);
-    // CameraPitch(&camera, -45*DEG2RAD, true, true, false);
-    // UpdateCamera(&camera, CAMERA_THIRD_PERSON); 
+    float rotDeg = -135*DEG2RAD*GetMouseDelta().x*0.003f;
+    CameraYaw(&camera, rotDeg, true);
 
+    const std::pair<Vector3, Vector3> ballResult = ball.Update(physics, camera.position);
+
+    Vector3 forwardZ = Vector3Subtract(ballResult.first, camera.position);
+    Matrix ballTrans = MatrixTranslate(ballResult.first.x, ballResult.first.y, ballResult.first.z);
+    forwardZ.y = ballResult.first.y;
+    ballDir = Vector3Transform(forwardZ, ballTrans);
+
+    camera.target = ballResult.first;
+    camera.position += ballResult.second;
+    camera.position.y = 10.0f;
+    ballPos = ballResult.first;
 }

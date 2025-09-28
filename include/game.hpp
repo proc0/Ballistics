@@ -21,15 +21,17 @@ class Game {
     Block block;
     Camera camera;
     R3D_Mesh plane = { 0 };
+    R3D_Model ramp = { 0 };
     R3D_Material material = { 0 };
     R3D_Skybox skybox;
-    Vector3 mousePosition;
+    Vector3 ballPos;
+    Vector3 ballDir;
 
     public:
         R3D_Light light;
         void Load();
         static void Loop(void *self);
-        void Render() const;
+        void Render(const Vector3 ballPos, const Vector3 ballDir) const;
         void Run();
         void Update();
         void Unload();

@@ -1,7 +1,7 @@
 #include "ball.hpp"
 
 #define BALL_MAX_SPEED 50.0f
-#define BALL_ACCELERATION 10.0f
+#define BALL_ACCELERATION 8.0f
 #define BALL_BREAK_FORCE 20.0f
 
 void Ball::Init(Physics& bullet){
@@ -25,8 +25,8 @@ void Ball::Load(){
     sound = LoadSound(pathSoundSplat);
 
     // Create scene objects
-    sphere = R3D_LoadModel("assets/ball.obj");
-    texture = LoadTexture("assets/uvgrid_1024.png");
+    sphere = R3D_LoadModel("assets/soccerball.glb");
+    texture = LoadTexture("assets/soccertext.jpg");
     sphere.materials[0].albedo.texture = texture; 
 }
 
@@ -34,38 +34,46 @@ void Ball::Render() const {
     R3D_DrawModelPro(&sphere, transform);
 }
 
-const Vector3 Ball::Update(Physics& bullet){
+const std::pair<Vector3, Vector3> Ball::Update(Physics& bullet, Vector3 cameraPos) {
     
+    Vector3 forwardZ = Vector3Subtract(position, cameraPos);
+    forwardZ.y = position.y;
+    Vector3 forwardX = Vector3RotateByAxisAngle(forwardZ, {0, 1, 0}, -90.0f);
+    Vector3 fwdZ = Vector3Normalize(forwardZ);
+    Vector3 fwdX = Vector3Normalize(forwardX);
+
     if(IsKeyPressed(KEY_SPACE)){
         if(bullet.IsGrounded()){
             PlaySound(sound);
-            collision->applyForce(btVector3(0, 150, 0), btVector3(0, 0, 0));
+            collision->applyForce(btVector3(0, 300.0f, 0), btVector3(0, 0, 0));
             bullet.SetGrounded(false);
         }
     }
 
     if (IsKeyDown(KEY_W)) {
-        if(fabsf(collision->getLinearVelocity().getZ()) < BALL_MAX_SPEED){
-            collision->applyForce(btVector3(0, 0, -BALL_ACCELERATION), btVector3(0.0f, 0.0f, 0.0f));
-        }
+        // if(fabsf(collision->getLinearVelocity().getZ()) < BALL_MAX_SPEED){
+            collision->applyForce(btVector3(fwdZ.x*BALL_ACCELERATION, 0, fwdZ.z*BALL_ACCELERATION), btVector3(0, 0, 0));
+        // }
     }
 
     if (IsKeyDown(KEY_S)) {
-        if(collision->getLinearVelocity().getZ() < BALL_MAX_SPEED){
-            collision->applyForce(btVector3(0.0f, 0.0f, BALL_ACCELERATION), btVector3(0.0f, 0.0f, 0.0f));
-        }
+        // if(collision->getLinearVelocity().getZ() < BALL_MAX_SPEED){
+            collision->applyForce(btVector3(fwdZ.x*-BALL_ACCELERATION, 0, fwdZ.z*-BALL_ACCELERATION), btVector3(0, 0, 0));
+        // }
     }
 
     if (IsKeyDown(KEY_A)) {
-        if(fabsf(collision->getLinearVelocity().getX()) < BALL_MAX_SPEED){
-            collision->applyForce(btVector3(-BALL_ACCELERATION, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f));
-        }
+            collision->applyForce(btVector3(fwdX.x*-BALL_ACCELERATION, 0, fwdX.z*-BALL_ACCELERATION), btVector3(0, 0, 0));
+        // if(fabsf(collision->getLinearVelocity().getX()) < BALL_MAX_SPEED){
+        //     collision->applyForce(btVector3(-BALL_ACCELERATION, 0.0f, 0), btVector3(fwdX.x, 0.0f, fwdZ.z));
+        // }
     }
 
     if (IsKeyDown(KEY_D)) {
-        if(collision->getLinearVelocity().getX() < BALL_MAX_SPEED){
-            collision->applyForce(btVector3(BALL_ACCELERATION, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f));
-        }
+            collision->applyForce(btVector3(fwdX.x*BALL_ACCELERATION, 0, fwdX.z*BALL_ACCELERATION), btVector3(0, 0, 0));
+        // if(collision->getLinearVelocity().getX() < BALL_MAX_SPEED){
+        //     collision->applyForce(btVector3(BALL_ACCELERATION, 0, 0), btVector3(fwdX.x, 0.0f, fwdZ.z));
+        // }
     }
 
     if (collision->getMotionState()) {
@@ -76,17 +84,19 @@ const Vector3 Ball::Update(Physics& bullet){
         float z = float(trans.getOrigin().getZ());
 
         btQuaternion quatRot = trans.getRotation();
-        // transform = MatrixTranslate(x, y, z);
         Quaternion quatRot2 = (Quaternion){
             x: quatRot.getX(),
             y: quatRot.getY(),
             z: quatRot.getZ(),
             w: quatRot.getW(),
         };
-        // auto quatTrans = QuaternionFromMatrix(MatrixTranslate(x, y, z));
-        // transform = QuaternionToMatrix(QuaternionMultiply(quatTrans, quatRot2));
+
+        Vector3 ballDelta = (Vector3){ x: x - transform.m12, y: y - transform.m13, z: z - transform.m14 };
         transform = MatrixMultiply(QuaternionToMatrix(quatRot2), MatrixTranslate(x, y, z));
-        return (Vector3){ x: transform.m12, y: transform.m13, z: transform.m14 };
+        Vector3 ballPos = (Vector3){ x: transform.m12, y: transform.m13, z: transform.m14 };
+
+        position = ballPos;
+        return std::make_pair(ballPos, ballDelta);
     }
 }
 
